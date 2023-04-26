@@ -95,6 +95,10 @@
     height: 350px;
     width: 350px;
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    -moz-backdrop-filter: blur(10px);
+    -ms-backdrop-filter: blur(10px);
+    -o-backdrop-filter: blur(10px);
 }
 
 .image .orb {
@@ -135,6 +139,10 @@
 
 .colors .color:active {
     filter: brightness(1.05);
+    -webkit-filter: brightness(1.05);
+    -moz-filter: brightness(1.05);
+    -ms-filter: brightness(1.05);
+    -o-filter: brightness(1.05);
 }
 
 .colors .color:nth-child(7) {
