@@ -1,5 +1,7 @@
 .copy,
-.shuffle {
+.reset,
+.shuffle,
+.save {
     background: transparent;
     border: none;
     cursor: pointer;
@@ -10,13 +12,17 @@
 }
 
 .shuffle {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    position: absolute;
-    right: 15%;
-    top: 5%;
-    z-index: 10;
+    left: calc(5% + 50px);
+    right: initial;
+}
+
+.save {
+    right: calc(5% + 50px);
+}
+
+.reset {
+    right: initial;
+    left: 5%;
 }
 
 .preview {
@@ -121,10 +127,11 @@
     grid-template-columns: repeat(auto-fit, minmax(minmax(250px, 1fr), 1fr));
     gap: 10px;
     margin-inline: 20px;
+    padding-top: 40px;
 }
 
 .colors .color {
-    height: 100px;
+    height: 70px;
     width: 100%;
     margin: auto;
     display: grid;
@@ -137,6 +144,32 @@
     position: relative;
 }
 
+.colors .color::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 70px;
+    width: 100%;
+    border-radius: 10px;
+    background-image: url('/orb-noise.png');
+    background-size: cover;
+    background-position: center;
+    background-size: 400px 400px;
+    background-blend-mode: overlay;
+    opacity: 0.1;
+    z-index: 0;
+}
+
+.colors .color:hover {
+    filter: brightness(1.1);
+    -webkit-filter: brightness(1.1);
+    -moz-filter: brightness(1.1);
+    -ms-filter: brightness(1.1);
+    -o-filter: brightness(1.1);
+}
+
+.colors .color:focus,
 .colors .color:active {
     filter: brightness(1.05);
     -webkit-filter: brightness(1.05);
@@ -157,7 +190,7 @@
 }
 
 .colors .color input {
-    font-size: 1.25rem;
+    font-size: 1rem;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.65);
     text-transform: uppercase;
@@ -168,7 +201,9 @@
     outline: none;
     transition: all 0.2s ease-in-out;
     user-select: none;
-    width: 110px;
+    width: 75px;
+    position: relative;
+    z-index: 2;
 }
 
 .colors .color input:hover {
@@ -191,6 +226,37 @@
 .colors .color button.toggle {
     position: relative;
     z-index: 11;
+    top: -1px;
+}
+
+.colors .color .dark input,
+.colors .color .dark svg {
+    color: rgba(0, 0, 0, 0.65);
+}
+
+.colors .color .dark svg path {
+    fill: rgba(0, 0, 0, 0.65);
+}
+
+.colors .color .dark input:hover,
+.colors .color .dark svg:hover {
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.colors .color .dark svg:hover path {
+    fill: rgba(0, 0, 0, 0.87);
+}
+
+.colors .color .dark input:focus,
+.colors .color .dark input:active,
+.colors .color .dark svg:focus,
+.colors .color .dark svg:active {
+    color: rgba(0, 0, 0, 1);
+}
+
+.colors .color .dark svg:focus path,
+.colors .color .dark svg:active path {
+    fill: rgba(0, 0, 0, 1);
 }
 
 @keyframes float {

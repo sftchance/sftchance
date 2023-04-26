@@ -1,3 +1,3 @@
-export { ClipboardButton } from './ClipboardButton';
 export { Preview } from './Preview';
-export { ShuffleButton } from './ShuffleButton';
+export { IconButton } from './IconButton';
+export { IconButtons } from './IconButtons';

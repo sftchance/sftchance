@@ -1,2 +1,2 @@
 export { Color, Colors } from './Color';
-export { ClipboardButton, Preview, ShuffleButton } from './Tool';
+export { IconButton, IconButtons, Preview } from './Tool';

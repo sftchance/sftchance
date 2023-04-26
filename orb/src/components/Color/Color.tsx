@@ -14,6 +14,12 @@ const Color = ({
     onChange: (index: number, e: React.ChangeEvent<HTMLInputElement>) => void;
     onToggle: (index: number) => void;
 }) => {
+    const isDark = (hex: string) => {
+        const [r, g, b] = hex.match(/\w\w/g)?.map((x) => parseInt(x, 16)) || [];
+
+        return r * 0.299 + g * 0.587 + b * 0.114 > 186;
+    };
+
     return (
         <div
             className="color"
@@ -22,7 +28,7 @@ const Color = ({
                 navigator.clipboard.writeText(color.hex.toUpperCase());
             }}
         >
-            <div>
+            <div className={isDark(color.hex) ? 'dark' : 'light'}>
                 <input
                     type="text"
                     value={color.hex}

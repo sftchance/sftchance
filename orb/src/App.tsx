@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 
 import { Color } from './types';
 
-import { DEFAULT_COLORS } from './constants';
-
 import { getRandomColors } from './utils';
 
-import { ClipboardButton, Colors, Preview, ShuffleButton } from './components';
+import { DEFAULT_COLORS } from './constants';
+
+import { Colors, IconButtons, Preview } from './components';
 
 import './App.css';
 
@@ -46,14 +46,11 @@ function App() {
 
     return (
         <>
-            <ClipboardButton
-                onClick={() => {
-                    navigator.clipboard.writeText(window.location.href);
+            <IconButtons
+                onReset={() => {
+                    setColors(DEFAULT_COLORS);
                 }}
-            />
-
-            <ShuffleButton
-                onClick={() => {
+                onShuffle={() => {
                     setColors((colors) => getRandomColors(colors));
                 }}
             />
