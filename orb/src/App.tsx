@@ -1,5 +1,8 @@
 import { useState } from 'react';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faShuffle, faLock, faLockOpen, faRandom } from '@fortawesome/free-solid-svg-icons';
+
 import { Color } from './types';
 
 import orbNoise from './assets/orb-noise.png';
@@ -66,6 +69,15 @@ function App() {
 
     return (
         <>
+            <button
+                className="shuffle"
+                onClick={() => {
+                    setColors((colors) => getRandomColors(colors));
+                }}
+            >
+                <FontAwesomeIcon icon={faShuffle} />
+            </button>
+
             <div className="preview">
                 <div className="image">
                     <div className="orb blurred" style={orbStyle}></div>
@@ -79,39 +91,39 @@ function App() {
                 </div>
             </div>
 
-            <button
-                onClick={() => {
-                    setColors((colors) => getRandomColors(colors));
-                }}
-            >
-                Randomize
-            </button>
+            <div className="colors">
+                {colors.map((color, index) => {
+                    return (
+                        <div key={index} className="color" style={{ background: color.hex }}>
+                            <div>
+                                <input
+                                    type="text"
+                                    value={color.hex}
+                                    onChange={(e) => {
+                                        const newColors = [...colors];
+                                        newColors[index].hex = e.target.value as `#${string}`;
+                                        setColors(newColors);
+                                    }}
+                                />
 
-            {colors.map((color, index) => {
-                return (
-                    <div key={index} className="color">
-                        <input
-                            type="color"
-                            value={color.hex}
-                            onChange={(event) => {
-                                const newColors = [...colors];
-                                newColors[index].hex = event.target.value as `#${string}`;
-                                setColors(newColors);
-                            }}
-                        />
-
-                        <button
-                            onClick={() => {
-                                const newColors = [...colors];
-                                newColors[index].locked = !newColors[index].locked;
-                                setColors(newColors);
-                            }}
-                        >
-                            {color.locked ? '🔒' : '🔓'}
-                        </button>
-                    </div>
-                );
-            })}
+                                <button
+                                    onClick={() => {
+                                        const newColors = [...colors];
+                                        newColors[index].locked = !newColors[index].locked;
+                                        setColors(newColors);
+                                    }}
+                                >
+                                    {color.locked ? (
+                                        <FontAwesomeIcon icon={faLock} />
+                                    ) : (
+                                        <FontAwesomeIcon icon={faLockOpen} />
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
         </>
     );
 }

@@ -1,6 +1,15 @@
+.shuffle {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    right: 5%;
+    top: 3%;
+}
+
 .preview {
     width: 100vw;
-    margin-bottom: 40px;
+    margin-bottom: 60px;
 }
 
 .image {
@@ -88,6 +97,61 @@
 .image .orb.blurred {
     height: 315px;
     width: 315px;
+}
+
+.colors {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(minmax(250px, 1fr), 1fr));
+    gap: 10px;
+    margin-inline: 20px;
+}
+
+.colors .color {
+    height: 100px;
+    width: 100%;
+    margin: auto;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    user-select: none;
+    border-radius: 10px;
+}
+
+.colors .color:nth-child(7) {
+    grid-column-start: auto;
+    grid-column-end: span 2;
+}
+
+.colors .color input {
+    font-size: 1.5rem;
+    font-weight: 600;
+    width: 150px;
+    color: rgba(255, 255, 255, 0.65);
+    text-transform: uppercase;
+    margin-bottom: 0px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease-in-out;
+    user-select: none;
+}
+
+.colors .color input:hover {
+    color: rgba(255, 255, 255, 0.87);
+}
+
+.colors .color input:focus,
+.colors .color input:active {
+    outline: none;
+    color: rgba(255, 255, 255, 1);
+}
+
+.colors .color button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    width: 20px;
 }
 
 @keyframes float {
