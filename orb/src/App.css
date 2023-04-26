@@ -1,14 +1,27 @@
+.copy,
 .shuffle {
     background: transparent;
     border: none;
     cursor: pointer;
     position: absolute;
     right: 5%;
-    top: 3%;
+    top: 5%;
+    z-index: 10;
+}
+
+.shuffle {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    right: 15%;
+    top: 5%;
+    z-index: 10;
 }
 
 .preview {
     width: 100vw;
+    margin-top: 60px;
     margin-bottom: 60px;
 }
 
@@ -115,6 +128,13 @@
     text-align: center;
     user-select: none;
     border-radius: 10px;
+    animation: all 0.2s ease-in-out;
+    cursor: pointer;
+    position: relative;
+}
+
+.colors .color:active {
+    filter: brightness(1.05);
 }
 
 .colors .color:nth-child(7) {
@@ -122,10 +142,15 @@
     grid-column-end: span 2;
 }
 
-.colors .color input {
-    font-size: 1.5rem;
-    font-weight: 600;
+.colors .color div {
     width: 150px;
+    display: inline-block;
+    user-select: none;
+}
+
+.colors .color input {
+    font-size: 1.25rem;
+    font-weight: 600;
     color: rgba(255, 255, 255, 0.65);
     text-transform: uppercase;
     margin-bottom: 0px;
@@ -135,6 +160,7 @@
     outline: none;
     transition: all 0.2s ease-in-out;
     user-select: none;
+    width: 110px;
 }
 
 .colors .color input:hover {
@@ -152,6 +178,11 @@
     border: none;
     cursor: pointer;
     width: 20px;
+}
+
+.colors .color button.toggle {
+    position: relative;
+    z-index: 11;
 }
 
 @keyframes float {

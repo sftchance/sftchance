@@ -1,6 +1,6 @@
-import { Color } from '../types';
+import { Color } from '../../types';
 
-import { orbTexture, orbNoise } from '../assets';
+import { orbTexture, orbNoise } from '../../assets';
 
 const Preview = ({ colors }: { colors: Color[] }) => {
     const orbStyle = {
