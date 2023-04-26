@@ -1,5 +1,5 @@
 interface Color {
-    hex: `#${string}`;
+    hex: string;
     position: number;
     locked?: boolean | undefined;
 }
