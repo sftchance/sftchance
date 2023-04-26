@@ -14,10 +14,18 @@ const Color = ({
     onChange: (index: number, e: React.ChangeEvent<HTMLInputElement>) => void;
     onToggle: (index: number) => void;
 }) => {
-    const isDark = (hex: string) => {
-        const [r, g, b] = hex.match(/\w\w/g)?.map((x) => parseInt(x, 16)) || [];
+    const isDark = (hex: string, threshold = 0.3): boolean => {
+        hex = hex.replace('#', '');
 
-        return r * 0.299 + g * 0.587 + b * 0.114 > 186;
+        const int = parseInt(hex, 16);
+
+        const r = (int >> 16) & 255;
+        const g = (int >> 8) & 255;
+        const b = int & 255;
+
+        const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+
+        return luminance < threshold;
     };
 
     return (
@@ -28,7 +36,7 @@ const Color = ({
                 navigator.clipboard.writeText(color.hex.toUpperCase());
             }}
         >
-            <div className={isDark(color.hex) ? 'dark' : 'light'}>
+            <div className={isDark(color.hex) ? 'light' : 'dark'}>
                 <input
                     type="text"
                     value={color.hex}

@@ -2,7 +2,15 @@ import { Color } from '../../types';
 
 import { orbTexture, orbNoise } from '../../assets';
 
-const Preview = ({ colors }: { colors: Color[] }) => {
+const Preview = ({
+    previewRef,
+    colors,
+    paused,
+}: {
+    previewRef: React.RefObject<HTMLDivElement>;
+    colors: Color[];
+    paused: boolean;
+}) => {
     const orbStyle = {
         background: `radial-gradient(95.24% 100.5% at 2.04% 40.07%, ${colors
             .map((color) => {
@@ -12,7 +20,7 @@ const Preview = ({ colors }: { colors: Color[] }) => {
     };
 
     return (
-        <div className="preview">
+        <div className={`preview ${paused ? 'paused' : ''}`} ref={previewRef}>
             <div className="image">
                 <div className="orb blurred" style={orbStyle}></div>
                 <img className="texture blurred" src={orbTexture} alt="texture" />

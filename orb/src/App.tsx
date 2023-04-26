@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Color } from './types';
 
@@ -21,7 +21,10 @@ const URL_COLORS = URL_COLOR_CODES.map((hex, index) => ({
 const INIT_COLORS = URL_COLORS.length ? URL_COLORS : DEFAULT_COLORS;
 
 function App() {
+    const previewRef = useRef<HTMLDivElement>(null);
+
     const [colors, setColors] = useState<Color[]>(INIT_COLORS);
+    const [paused, setPaused] = useState<boolean>(false);
 
     const onColorChange = (index: number, color: Color, key: keyof Color, value: string | number | boolean) => {
         setColors([
@@ -47,15 +50,21 @@ function App() {
     return (
         <>
             <IconButtons
+                previewRef={previewRef}
+                paused={paused}
+                colors={colors}
                 onReset={() => {
                     setColors(DEFAULT_COLORS);
+                }}
+                onPause={() => {
+                    setPaused((paused) => !paused);
                 }}
                 onShuffle={() => {
                     setColors((colors) => getRandomColors(colors));
                 }}
             />
 
-            <Preview colors={colors} />
+            <Preview previewRef={previewRef} colors={colors} paused={paused} />
 
             <Colors
                 colors={colors}

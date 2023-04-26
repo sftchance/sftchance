@@ -16,6 +16,10 @@
     width: 100vw;
 }
 
+::selection {
+    background-color: transparent;
+}
+
 body,
 html {
     margin: 0;

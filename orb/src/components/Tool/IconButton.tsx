@@ -11,7 +11,7 @@ const IconButton = ({
     onClick: React.MouseEventHandler<HTMLButtonElement>;
 }) => {
     return (
-        <button className={`${className}`} onClick={onClick}>
+        <button className={`icon-button ${className}`} onClick={onClick}>
             <FontAwesomeIcon icon={icon} />
         </button>
     );
