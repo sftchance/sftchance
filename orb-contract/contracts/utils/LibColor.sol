@@ -4,6 +4,13 @@ pragma solidity ^0.8.18;
 
 import {LibString} from "solady/src/utils/LibString.sol";
 
+/**
+ * @title LibColor
+ * @author sftchance.eth
+ * @notice This library handles the bitpacking and unpacking of colors to use a
+ *         single `uint256` as a colormap with bitpacked domains creating a
+ *         native representation with managed stops.
+ */
 library LibColor {
     using LibString for uint8;
 

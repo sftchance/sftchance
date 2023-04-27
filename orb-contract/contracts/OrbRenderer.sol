@@ -21,6 +21,8 @@ import {LibString} from "solady/src/utils/LibString.sol";
  * @notice The token ID is a 256-bit unsigned integer that is broken up into 32-bit unsigned integers
  *         summed together to create the output gradient. 
  * 
+ * @notice An Orb may have up to 7 gradient stops, each represented by a 32-bit unsigned integer but 
+ *         there must be at least one.
  * @notice The first 24 bits of the 32-bit unsigned integer represent the color and the last 8 bits
  *         represent the domain of the gradient stop.
  *             - The color is represented as a `uint24` filled leaving 8 empty.
@@ -58,6 +60,11 @@ contract OrbRenderer is IOrbRenderer {
         layers = $layers;
     }
 
+    /**
+     * @notice Builds the SVG representation of the gradient.
+     * @param $id The token ID of the Orb.
+     * @return $gradient The SVG representation of the gradient.
+     */
     function gradient(
         uint256 $id
     ) internal pure returns (string memory $gradient) {
@@ -92,6 +99,9 @@ contract OrbRenderer is IOrbRenderer {
         $gradient = string.concat($gradient, "</radialGradient></defs>");
     }
 
+    /**
+     * See {IOrbRenderer-uri}.
+     */
     function uri(uint256 $id) public view virtual returns (string memory svg) {
         /// @dev Initialize the SVG.
         svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">';
@@ -120,6 +130,9 @@ contract OrbRenderer is IOrbRenderer {
         svg = string.concat(svg, "</svg>");
     }
 
+    /**
+     * See {IOrbRenderer-uriIPFS}.
+     */
     function uriIPFS(uint256 $id) public view virtual returns (string memory) {
         /// @dev Convert the IPFS hash bytes to a string.
         string memory ipfsHashString = string(ipfsHashBytes);
