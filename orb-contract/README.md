@@ -58,25 +58,7 @@ export const recoverColor = (color: number, length: number, colors: number[][] =
 }
 ```
 
-With this, to load the Orb the DNA is instantiate as `105312285415975378509298838682582343862109712284319974254555693055`. This DNA is then fed into the rendering engine of Orbs to create the final DNA output.
-
-## 🎨 Orb Colors
-
-Inside the DNA, there may be different lengths of values as well as different types of values. However, the Orb Universe does not account for genetic anomalies and will not render any DNA that does not follow the above format.
-
-A color may be defined as a:
-
-- Hexadecimal color code: `#000000`
-- RGB color code: `rgb(0, 0, 0)`
-- RGBA color code: `rgba(0, 0, 0, 1)`
-- HSL color code: `hsl(0, 0%, 0%)`
-- HSL color code with alpha: `hsla(0, 0%, 0%, 1)`
-- HWB color code: `hwb(0, 0%, 0%)`
-- HWB color code with alpha: `hwb(0, 0%, 0%, 1)`
-- CSS color name: `black`
-- CSS color name with alpha: `black 1`
-
-Given valid configuration, the Orb may be used everywhere throughout the ecosystem.
+With this, to load the Orb the DNA is instantiate as `105312285415975378509298838682582343862109712284319974254555693055`. This DNA is then fed into the rendering engine of Orbs to create the native visualization of the DNA.
 
 ## 🖼️ Orb Rendering
 

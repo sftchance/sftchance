@@ -13,6 +13,9 @@ interface IOrb {
         address payable vault;
     }
 
+    /// dev Enables the tracking of loaded Orbs.
+    event Load(address indexed $by, uint256 indexed $id);
+
     /// @dev Enables the tracking of inspired Orbs.
     event Fork(
         address indexed $by,

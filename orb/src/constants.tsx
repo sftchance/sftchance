@@ -11,19 +11,19 @@ export const DEFAULT_COLORS: Color[] = [
     },
     {
         hex: '#8c6fde',
-        position: 20.95,
+        position: 21,
     },
     {
         hex: '#52308a',
-        position: 70.96,
+        position: 71,
     },
     {
         hex: '#52308a',
-        position: 83.61,
+        position: 84,
     },
     {
         hex: '#31054c',
-        position: 93.72,
+        position: 94,
     },
     {
         hex: '#1a0139',

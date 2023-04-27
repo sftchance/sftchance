@@ -6,8 +6,8 @@ pragma solidity ^0.8.18;
 import {IOrb} from "./interfaces/IOrb.sol";
 import {ERC1155} from "solady/src/tokens/ERC1155.sol";
 
-/// @dev Helper libraries.
-import {LibString} from "solady/src/utils/LibString.sol";
+/// @dev Interface dependencies.
+import {OrbRenderer} from "./OrbRenderer.sol";
 
 /**
  * @title Orb: The identity representation of a CHANCE reflected in an abstract Orb form.
@@ -24,34 +24,25 @@ import {LibString} from "solady/src/utils/LibString.sol";
  *         To protect the outcome, every action is acknowledged and accounted for in detail.
  */
 contract Orb is IOrb, ERC1155 {
-    /// @dev Load in the fancy string library.
-    using LibString for uint256;
-    using LibString for bytes;
-
     /// @dev The address of the deployer of the contract.
     address payable public deployer;
 
-    /// @dev The IPFS hash of the ERC-1155 token metadata.
-    bytes public ipfsHashBytes;
+    /// @dev The address of the renderer contract.
+    OrbRenderer public renderer;
 
     /// @dev Keep track of the color mappings minted.
     mapping(uint256 => Provenance) public provenance;
 
     /**
      * @notice Constructs the Orb ERC-1155 contract.
-     * @param $deployer The address of the deployer of the contract.
-     * @param $ipfsHashBytes The IPFS hash of the ERC-1155 token metadata.
      * @dev The IPFS hash is stored as bytes to save gas.
      */
-    constructor(
-        address payable $deployer,
-        bytes memory $ipfsHashBytes
-    ) ERC1155() {
+    constructor(OrbRenderer $renderer) ERC1155() {
         /// @dev Store the deployer address.
-        deployer = $deployer;
+        deployer = payable(msg.sender);
 
-        /// @dev Store the IPFS hash as bytes.
-        ipfsHashBytes = $ipfsHashBytes;
+        /// @dev Store the renderer.
+        renderer = $renderer;
     }
 
     /**
@@ -86,6 +77,13 @@ contract Orb is IOrb, ERC1155 {
             "Orb::load: can only increase closure"
         );
 
+        /// @dev Confirm the caller holds the majority of the Orb that is being
+        ///      loaded -- An Orb cannot be rugged from a natural Aura source.
+        require(
+            balanceOf(msg.sender, $id) > provenanceRef.totalSupply / 2,
+            "Orb::load: caller does not hold Orb"
+        );
+
         /// @dev Set `uri` to use the IPFS hash and token ID for the metadata.
         provenanceRef.useIPFS = $provenance.useIPFS;
 
@@ -111,6 +109,9 @@ contract Orb is IOrb, ERC1155 {
             /// @dev Confirm the transfer was successful.
             require(success, "Orb::load: transfer failed");
         }
+
+        /// @dev Emit the load event.
+        emit Load(msg.sender, $id);
 
         /// @dev Return the token ID of the loaded Orb.
         return $id;
@@ -156,8 +157,6 @@ contract Orb is IOrb, ERC1155 {
         /// @dev Reset the price to 0.
         delete provenanceRef.price;
     }
-
-    // TODO: Orbs not loaded can be minted.
 
     /**
      * See {IOrb-mint}.
@@ -225,20 +224,10 @@ contract Orb is IOrb, ERC1155 {
      * See {ERC1155-uri}.
      */
     function uri(uint256 $id) public view override returns (string memory) {
-        /// @dev Convert the IPFS hash bytes to a string.
-        string memory ipfsHashString = string(ipfsHashBytes);
-
         /// @dev Guard against the Onchain Renderer being used when disabled.
         if (provenance[$id].useIPFS > 0)
             /// @dev Return the built URI.
-            return
-                string.concat(
-                    "ipfs://",
-                    string.concat(
-                        string.concat(ipfsHashString, "/?id="),
-                        $id.toString()
-                    )
-                );
+            return renderer.uriIPFS($id);
 
         /// @dev Render the Orb using the onchain engine.
         return renderer.uri($id);
