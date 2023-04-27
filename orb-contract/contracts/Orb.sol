@@ -168,6 +168,9 @@ contract Orb is IOrb, ERC1155 {
         provenanceRef.vault = payable(
             address(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE)
         );
+
+        /// @dev Reset the price to 0.
+        delete provenanceRef.price;
     }
 
     /**
@@ -197,19 +200,21 @@ contract Orb is IOrb, ERC1155 {
         provenanceRef.totalSupply += $amount;
 
         /// @dev Transfer the funds to the vault if the price is greater than 0.
-        /// @dev Confirm the proper value is sent.
-        require(
-            msg.value == provenanceRef.price * $amount,
-            "Orb::mint: incorrect value"
-        );
+        if (provenanceRef.price != 0) {
+            /// @dev Confirm the proper value has been provided.
+            require(
+                msg.value == provenanceRef.price * $amount,
+                "Orb::mint: incorrect value"
+            );
 
-        /// @dev Transfer the funds to the vault.
-        (bool success, ) = provenanceRef.vault.call{value: msg.value}(
-            "Orb::mint: transfer failed"
-        );
+            /// @dev Transfer the funds to the vault.
+            (bool success, ) = provenanceRef.vault.call{value: msg.value}(
+                "Orb::mint: transfer failed"
+            );
 
-        /// @dev Confirm the transfer was successful.
-        require(success, "Orb::mint: transfer failed");
+            /// @dev Confirm the transfer was successful.
+            require(success, "Orb::mint: transfer failed");
+        }
 
         /// @dev Call the internal mint function having validated payment.
         super._mint($to, $id, $amount, $data);
