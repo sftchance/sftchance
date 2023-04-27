@@ -17,9 +17,11 @@
         "@vercel/analytics": "^1.0.0",
         "babel-plugin-macros": "^3.1.0",
         "chroma-js": "^2.4.2",
+        "ethers": "^5.7.2",
         "html-to-image": "^1.11.11",
         "react": "^18.2.0",
-        "react-dom": "^18.2.0"
+        "react-dom": "^18.2.0",
+        "wagmi": "^0.12.12"
     },
     "devDependencies": {
         "@types/chroma-js": "^2.4.0",

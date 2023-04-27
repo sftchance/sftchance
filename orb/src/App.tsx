@@ -6,7 +6,7 @@ import { getRandomColors } from './utils';
 
 import { DEFAULT_COLORS } from './constants';
 
-import { Colors, IconButtons, Preview } from './components';
+import { Colors, IconButtons, MintButton, Preview } from './components';
 
 import './App.css';
 
@@ -75,6 +75,8 @@ function App() {
                     onColorChange(index, colors[index], 'locked', !colors[index].locked);
                 }}
             />
+
+            <MintButton colors={colors} />
         </>
     );
 }

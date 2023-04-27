@@ -1,0 +1,3 @@
+{
+    "solidity.packageDefaultDependenciesDirectory": "orb-contract/node_modules"
+}

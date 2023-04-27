@@ -152,7 +152,8 @@
     padding-top: 40px;
 }
 
-.colors .color {
+.colors .color,
+.mint {
     height: 70px;
     width: 100%;
     margin: auto;
@@ -165,12 +166,6 @@
     cursor: pointer;
     position: relative;
     z-index: 1;
-    animation: fadeInUp 0.5s ease-in-out 0.2s forwards;
-    opacity: 0;
-    transform: translateY(20px);
-}
-
-.icon-button {
     animation: fadeInUp 0.5s ease-in-out 0.2s forwards;
     opacity: 0;
     transform: translateY(20px);
@@ -324,6 +319,45 @@
 .colors .color:nth-child(7),
 .icon-button:nth-child(7) {
     animation-delay: 0.9s;
+}
+
+.colors .color:nth-child(8),
+.icon-button:nth-child(8),
+.mint {
+    animation-delay: 1s;
+}
+
+.mint.instant {
+    animation-delay: 0s;
+}
+
+.mint {
+    margin-inline: 20px;
+    width: calc(100% - 40px);
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: rgba(0, 0, 0, 0.65);
+    margin-top: 10px;
+    background: rgba(255, 255, 255, 0.97);
+}
+
+.mint:hover {
+    color: rgba(0, 0, 0, 0.87);
+    background: rgba(255, 255, 255, 1);
+}
+
+.mint:focus,
+.mint:active {
+    color: rgba(0, 0, 0, 1);
+    background: rgba(255, 255, 255, 0.87);
+}
+
+.icon-button {
+    animation: fadeInUp 0.5s ease-in-out 0.2s forwards;
+    transition: all 0.2s ease-in-out;
+    opacity: 0;
+    transform: translateY(20px);
 }
 
 @keyframes fadeInUp {
