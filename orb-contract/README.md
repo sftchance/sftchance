@@ -29,43 +29,36 @@ Additionally inside the provenance, the total supply of the Orb is actively trac
 
 ## 🧬 Orb DNA
 
-The DNA of an Orb is a `bytes` string containing the color definition of the Orb. To define a new range of colors, the  DNA of an Orb is defined as a `bytes` string of 7 colors.
+The DNA of an Orb is a single bitpacked `uint256` that represents a series of 7 rgb colors and is written in a way that makes offchain and onchain decompilation straight forward and consistent in results.
 
-As the DNA of Orb is never read or built onchain and only ever through reflection of a visual representation, DNA is written in a way that makes frontend decompilation straight forward and consistent in results.
+The `uint256` is bitpacked in the following manner:
 
-The bytes string is built as:
-
-```javascript
-const dna = abiCoder.encode(
-    [string, string, string, string, string, string, string],
-    [color0, color1, color2, color3, color4, color5, color6]
-);
-```
-
-This DNA is then fed into the rendering engine of Orbs to create the final DNA output. This DNA can then be decoded both onchain and offchain with the following configurations.
-
-When you are working on a frontend or application using an RPC read, you can decode the results of the DNA with:
-
-```javascript
-const dnaBytes = "0x...";
-
-const dna = abiCoder.decode(
-    [string, string, string, string, string, string, string],
-    dnaBytes
-);
-```
-
-For instances where the DNA is already onchain, you can decode the DNA in Solidity like:
-
-```solidity
-contract Decoder { 
-    function decodeDna(bytes memory dna) public pure returns (string[7] memory) {
-        return abi.decode(dna, (string[7] memory));
+```tsx
+export const bitpackColor = (colors: number[][], color = 0) => {
+    for (let i = 0; i < colors.length; i++) {
+        const rgb = colors[i];
+        color += rgb[0] << (i * 32);
+        color += rgb[1] << (i * 32 + 8);
+        color += rgb[2] << (i * 32 + 16);
     }
+    
+    return color;
+}
+    
+export const recoverColor = (color: number, length: number, colors: number[][] = []) => {
+    for (let i = length; i > -1; i--) {
+        colors.push([
+            color >> (i * 32) & 0xFF,
+            color >> (i * 32 + 8) & 0xFF,
+            color >> (i * 32 + 16) & 0xFF
+        ]);
+    }
+    
+    return colors;
 }
 ```
 
-Of course, the precise implementation of the decoding will depend entirely on your needs and you should not feel constricted to the above examples.
+With this, to load the Orb the DNA is instantiate as `105312285415975378509298838682582343862109712284319974254555693055`. This DNA is then fed into the rendering engine of Orbs to create the final DNA output.
 
 ## 🎨 Orb Colors
 

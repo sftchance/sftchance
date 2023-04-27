@@ -34,14 +34,8 @@ contract Orb is IOrb, ERC1155 {
     /// @dev The IPFS hash of the ERC-1155 token metadata.
     bytes public ipfsHashBytes;
 
-    /// @dev The total number of unique Orbs minted.
-    uint160 public totalSupply;
-
-    /// @dev Hard storage of ids used for a color mapping.
-    mapping(uint256 => bytes) public idToColors;
-
     /// @dev Keep track of the color mappings minted.
-    mapping(bytes => Provenance) public provenance;
+    mapping(uint256 => Provenance) public provenance;
 
     /**
      * @notice Constructs the Orb ERC-1155 contract.
@@ -64,11 +58,11 @@ contract Orb is IOrb, ERC1155 {
      * See {IOrb-load}.
      */
     function load(
-        bytes memory $colors,
+        uint256 $id,
         Provenance memory $provenance
-    ) public payable virtual returns (uint160) {
+    ) public payable virtual returns (uint256) {
         /// @dev Warming up the provenance mappings.
-        Provenance storage provenanceRef = provenance[$colors];
+        Provenance storage provenanceRef = provenance[$id];
 
         /// @dev Confirm the message sender has permission to set the provenance.
         require(
@@ -77,25 +71,35 @@ contract Orb is IOrb, ERC1155 {
             "Orb::load: vault already set"
         );
 
-        /// @dev Confirm a valid vault has been set.
-        require($provenance.vault != address(0), "Orb::load: invalid vault");
+        /// @dev Confirm the max supply is not already reached.
+        /// @notice When `maxSupply` is 0, it is unlimited.
+        require(
+            provenanceRef.maxSupply == 0 ||
+                $provenance.maxSupply >= provenanceRef.totalSupply,
+            "Orb::load: can only increase max supply"
+        );
 
-        /// @dev When a new provenance has been created, set the id of the token.
-        if (provenanceRef.vault == address(0)) {
-            /// @dev Set the token ID of the Orb.
-            provenanceRef.id = totalSupply;
+        /// @dev Confirm the closure of minting has not already passed.
+        require(
+            provenanceRef.closure == 0 ||
+                $provenance.closure >= provenanceRef.closure,
+            "Orb::load: can only increase closure"
+        );
 
-            /// @dev Set the vault address of the Orb.
-            provenanceRef.vault = $provenance.vault;
+        /// @dev Set `uri` to use the IPFS hash and token ID for the metadata.
+        provenanceRef.useIPFS = $provenance.useIPFS;
 
-            /// @dev Save the color id into the idToColors mapping.
-            idToColors[totalSupply] = $colors;
+        /// @dev Set the max supply of the Orb.
+        provenanceRef.maxSupply = $provenance.maxSupply;
 
-            /// @dev Increment the id for the next token id.
-            unchecked {
-                totalSupply++;
-            }
-        }
+        /// @dev Set the closure of minting the Orb.
+        provenanceRef.closure = $provenance.closure;
+
+        /// @dev Set the price to mint the Orb.
+        provenanceRef.price = $provenance.price;
+
+        /// @dev Set the vault address of the Orb.
+        provenanceRef.vault = $provenance.vault;
 
         /// @dev Pay the difference in price to the deployer of the Orbs.
         if (provenanceRef.price < $provenance.price) {
@@ -108,54 +112,34 @@ contract Orb is IOrb, ERC1155 {
             require(success, "Orb::load: transfer failed");
         }
 
-        /// @dev Confirm the max supply is not already reached.
-        /// @notice When `maxSupply` is 0, it is unlimited.
-        require(
-            provenanceRef.maxSupply == 0 ||
-                $provenance.maxSupply >= provenanceRef.totalSupply,
-            "Orb::load: can only increase max supply"
-        );
-
-        /// @dev Set the max supply of the Orb.
-        provenanceRef.maxSupply = $provenance.maxSupply;
-
-        /// @dev Set the price to mint the Orb.
-        provenanceRef.price = $provenance.price;
-
-        /// @dev Return the token ID of the newly created Orb.
-        return provenanceRef.id;
+        /// @dev Return the token ID of the loaded Orb.
+        return $id;
     }
 
     /**
      * See {IOrb-fork}.
      */
     function fork(
-        bytes memory $forkedColors,
-        bytes memory $colors,
+        uint256 $forkedId,
+        uint256 $id,
         Provenance memory $provenance
-    ) public payable virtual returns (uint160 forkId) {
+    ) public payable virtual returns (uint256 forkId) {
         /// @dev Confirm the forked provenance exists.
-        uint256 forkedId = provenance[$forkedColors].id;
-
-        /// @dev Confirm the forked provenance exists.
-        require(forkedId != 0, "Orb::load: forked provenance not found");
+        require($forkedId != 0, "Orb::load: forked provenance not found");
 
         /// @dev Load the provenance into a new token ID.
-        forkId = load($colors, $provenance);
+        forkId = load($id, $provenance);
 
         /// @dev Emit the fork event.
-        emit Fork(msg.sender, forkedId, forkId);
+        emit Fork(msg.sender, $forkedId, $id);
     }
 
     /**
      * See {IOrb-forfeit}.
      */
     function forfeit(uint256 $id) public virtual {
-        /// @dev Warming up the initialized metadata.
-        bytes memory colors = idToColors[$id];
-
         /// @dev Warming up the provenance mappings.
-        Provenance storage provenanceRef = provenance[colors];
+        Provenance storage provenanceRef = provenance[$id];
 
         /// @dev Confirm the message sender has permission to forfeit the provenance.
         require(
@@ -173,6 +157,8 @@ contract Orb is IOrb, ERC1155 {
         delete provenanceRef.price;
     }
 
+    // TODO: Orbs not loaded can be minted.
+
     /**
      * See {IOrb-mint}.
      */
@@ -182,11 +168,8 @@ contract Orb is IOrb, ERC1155 {
         uint32 $amount,
         bytes memory $data
     ) public payable virtual {
-        /// @dev Warming up the initialized metadata.
-        bytes memory colors = idToColors[$id];
-
         /// @dev Warming up the provenance mappings.
-        Provenance storage provenanceRef = provenance[colors];
+        Provenance storage provenanceRef = provenance[$id];
 
         /// @dev Confirm the totalSupply will not be exceeded.
         /// @notice When `maxSupply` is 0, the total supply is unlimited.
@@ -195,9 +178,6 @@ contract Orb is IOrb, ERC1155 {
                 provenanceRef.totalSupply + $amount <= provenanceRef.maxSupply,
             "Orb::mint: totalSupply exceeded"
         );
-
-        /// @dev Increment the total supply of the Orb.
-        provenanceRef.totalSupply += $amount;
 
         /// @dev Transfer the funds to the vault if the price is greater than 0.
         if (provenanceRef.price != 0) {
@@ -216,6 +196,11 @@ contract Orb is IOrb, ERC1155 {
             require(success, "Orb::mint: transfer failed");
         }
 
+        /// @dev Increment the total supply of the Orb.
+        unchecked {
+            provenanceRef.totalSupply += $amount;
+        }
+
         /// @dev Call the internal mint function having validated payment.
         super._mint($to, $id, $amount, $data);
     }
@@ -224,11 +209,8 @@ contract Orb is IOrb, ERC1155 {
      * See {IOrb-burn}.
      */
     function burn(uint256 $id, uint32 $amount) public virtual {
-        /// @dev Warming up the initialized metadata.
-        bytes memory colors = idToColors[$id];
-
         /// @dev Warming up the provenance mappings.
-        Provenance storage provenanceRef = provenance[colors];
+        Provenance storage provenanceRef = provenance[$id];
 
         /// @dev Decrement the total supply of the Orb.
         unchecked {
@@ -246,17 +228,19 @@ contract Orb is IOrb, ERC1155 {
         /// @dev Convert the IPFS hash bytes to a string.
         string memory ipfsHashString = string(ipfsHashBytes);
 
-        /// @dev Return the built URI.
-        return
-            string(
-                abi.encodePacked(
+        /// @dev Guard against the Onchain Renderer being used when disabled.
+        if (provenance[$id].useIPFS > 0)
+            /// @dev Return the built URI.
+            return
+                string.concat(
                     "ipfs://",
-                    ipfsHashString,
-                    "?id=",
-                    $id.toString(),
-                    "&colors=",
-                    string(idToColors[$id])
-                )
-            );
+                    string.concat(
+                        string.concat(ipfsHashString, "/?id="),
+                        $id.toString()
+                    )
+                );
+
+        /// @dev Render the Orb using the onchain engine.
+        return renderer.uri($id);
     }
 }

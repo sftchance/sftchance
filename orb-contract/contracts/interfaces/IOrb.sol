@@ -5,10 +5,11 @@ pragma solidity ^0.8.18;
 interface IOrb {
     /// @dev The provenance metadata of an Orb.
     struct Provenance {
+        uint8 useIPFS;
         uint32 maxSupply;
         uint32 totalSupply;
-        uint32 price;
-        uint160 id;
+        uint48 closure;
+        uint136 price;
         address payable vault;
     }
 
@@ -21,25 +22,25 @@ interface IOrb {
 
     /**
      * @notice Loads the provenance data for an Orb (can be creation and updating).
-     * @param $colors The colors of the Orb.
+     * @param $id The token ID of the Orb being minted reprsenting the DNA of the colors.
      * @param $provenance The provenance data of the Orb.
      */
     function load(
-        bytes memory $colors,
+        uint256 $id,
         Provenance memory $provenance
-    ) external payable returns (uint160);
+    ) external payable returns (uint256);
 
     /**
      * @notice Enables the forking of an existing Orb.
-     * @param $forkedColors The colors of the Orb to fork.
-     * @param $colors The colors of the new Orb.
+     * @param $forkedId The token ID of the Orb to fork.
+     * @param $id The token ID of the Orb being minted reprsenting the DNA of the colors.
      * @param $provenance The provenance data to set.
      */
     function fork(
-        bytes memory $forkedColors,
-        bytes memory $colors,
+        uint256 $forkedId,
+        uint256 $id,
         Provenance memory $provenance
-    ) external payable returns (uint160);
+    ) external payable returns (uint256);
 
     /**
      * @notice Forfeits the provenance of an Orb.

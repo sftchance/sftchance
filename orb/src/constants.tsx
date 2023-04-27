@@ -1,6 +1,6 @@
 import { Color } from './types';
 
-const DEFAULT_COLORS: Color[] = [
+export const DEFAULT_COLORS: Color[] = [
     {
         hex: '#7d67bf',
         position: 0,
@@ -30,5 +30,3 @@ const DEFAULT_COLORS: Color[] = [
         position: 100,
     },
 ];
-
-export { DEFAULT_COLORS };
