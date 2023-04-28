@@ -36,6 +36,7 @@ At the simplest level, the token ID of an Orb is a bitpacked `uint256` containin
 
 ```tsx
 type Color = {
+    empty: boolean; 
     domain: number;
     r: number;
     g: number;
@@ -48,7 +49,6 @@ type ColorMap = {
     bgTransparent: boolean;
     bgScalar: number;
     colorCount: number;
-    empty: boolean;
     colors: Color[];
 }
 
@@ -73,9 +73,9 @@ When all comes together, a token ID is created by the bitpacking of:
 ```python
 pos  (18 bits) = | x (9 bits) | y (9 bits) |
 
-top  (32 bits) = | empty (1 bit) | col_count (4 bits) | bg_scalar (9 bits) | pos (18 bits) |
+top  (32 bits) = | speed (2 bit) | col_count (3 bits) | bg_scalar (9 bits) | pos (18 bits) |
 
-col  (32 bits) = | domain (8 bits) | r (8 bits) | g (8 bits) | b (8 bits) |
+col  (32 bits) = | empty (1 bit) | domain (7 bits) | r (8 bits) | g (8 bits) | b (8 bits) |
 dna (224 bits) = | col (32 bits) | col (32 bits) | col (32 bits) | col (32 bits) \
                  | col (32 bits) | col (32 bits) | col (32 bits) |
 
@@ -111,6 +111,10 @@ With the established DNA of an Orb, the visualization extends beyond just an unc
         { 
             "trait_type": "Quadrant",
             "value": "Top Right"
+        },
+        { 
+            "trait_type": "Speed",
+            "value": 1,
         }
         {
             "trait_type": "Background",
