@@ -1,4 +1,12 @@
-import { faClipboard, faPlay, faPause, faRefresh, faShuffle, faSave } from '@fortawesome/free-solid-svg-icons';
+import {
+    faClipboard,
+    faPlay,
+    faPause,
+    faRefresh,
+    faShuffle,
+    faSave,
+    faDownload,
+} from '@fortawesome/free-solid-svg-icons';
 
 import { toPng } from 'html-to-image';
 
@@ -39,7 +47,7 @@ const IconButtons = ({
 
             <IconButton
                 className="save"
-                icon={faSave}
+                icon={faDownload}
                 onClick={() => {
                     toPng(previewRef.current as HTMLElement)
                         .then((dataUrl) => {

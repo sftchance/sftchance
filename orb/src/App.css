@@ -21,6 +21,10 @@
     right: calc(5% + 50px);
 }
 
+.save.transparent {
+    right: calc(5% + 106px);
+}
+
 .reset {
     right: initial;
     left: 5%;
@@ -48,6 +52,7 @@
     position: relative;
     margin: auto;
     animation: float 5s ease-in-out infinite;
+    background: #000;
 }
 
 .preview.paused .image {
