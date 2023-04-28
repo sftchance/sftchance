@@ -23,17 +23,35 @@ At the time of creating a new Orb, the caller has the ability to take ownership 
 
 - Set the maximum supply that can be minted of this Orb.
 - Set the price to mint this Orb.
+- Set the time at which no more Orbs of this definition can be minted.
 - Set the vault that money is sent to upon minting a paid Orb.
 
 Additionally inside the provenance, the total supply of the Orb is actively tracked at the time of minting and burning. This allows for the community to understand the current population of a respective Orb.
 
 ## 🧬 Orb DNA
 
-The DNA of an Orb is a single bitpacked `uint256` that represents a series of 7 rgb colors and is written in a way that makes offchain and onchain decompilation straight forward and consistent in results.
+The DNA of an Orb is a single [bitpacked](https://kinematicsoup.com/news/2016/9/6/data-compression-bit-packing-101) `uint256` that represents a series of 7 rgb colors (`[...,[255,255,255],...]`) and several other pieces of endpoint in a model that makes offchain and onchain decompilation straight forward and consistent in results.
 
-The `uint256` is bitpacked in the following manner:
+At the simplest level, the token ID of an Orb is a bitpacked `uint256` containing all the genetic information of an Orb. The `uint256` is bitpacked in the following manner:
 
 ```tsx
+type Color = {
+    domain: number;
+    r: number;
+    g: number;
+    b: number;
+}
+
+type ColorMap = {
+    x: number;
+    y: number;
+    bgTransparent: boolean;
+    bgScalar: number;
+    colorCount: number;
+    empty: boolean;
+    colors: Color[];
+}
+
 export const bitpackColor = (colors: number[][], color = 0) => {
     for (let i = 0; i < colors.length; i++) {
         const rgb = colors[i];
@@ -44,27 +62,113 @@ export const bitpackColor = (colors: number[][], color = 0) => {
     
     return color;
 }
-    
-export const recoverColor = (color: number, length: number, colors: number[][] = []) => {
-    for (let i = length; i > -1; i--) {
-        colors.push([
-            color >> (i * 32) & 0xFF,
-            color >> (i * 32 + 8) & 0xFF,
-            color >> (i * 32 + 16) & 0xFF
-        ]);
-    }
-    
-    return colors;
+```
+
+With this, the Orbs foundational DNA is `105312285415975378509298838682582343862109712284319974254555693055`. The creation and implemenation of DNA does not stop here, though. This foundational piece of DNA is then appended with a *head* and fed into the rendering engine of Orbs to create the native visualization of the DNA.
+
+While the visualization here is straightforward, there are onchain enforcement checks to confirm that we only have Orbs of proper genetics. In reality, the definition of a token ID is quite complex and not possible without a script that can encode and decode the DNA of an Orb.
+
+When all comes together, a token ID is created by the bitpacking of:
+
+```python
+pos  (18 bits) = | x (9 bits) | y (9 bits) |
+
+top  (32 bits) = | empty (1 bit) | col_count (4 bits) | bg_scalar (9 bits) | pos (18 bits) |
+
+col  (32 bits) = | domain (8 bits) | r (8 bits) | g (8 bits) | b (8 bits) |
+dna (224 bits) = | col (32 bits) | col (32 bits) | col (32 bits) | col (32 bits) \
+                 | col (32 bits) | col (32 bits) | col (32 bits) |
+
+orb (256 bits) = | top (32 bits) | dna (224 bits) | 
+
+where       0 <= col_count <= 7 
+        and 0 <= bg_scalar <= 255 
+        and 0 <= domain <= 100 
+        and 0 <= x <= 360 
+        and 0 <= y <= 360
+```
+
+> **Warning**
+> If you think you can just mint an Orb and that it will come out looking correct, you are wrong. The amount of data packed into the token ID of an Orb is quite complex and requires a script to encode and decode the DNA of an Orb to even get close to the results you want.
+
+Getting started is simple though and you don't have to get anything running yourself.
+
+Because all the DNA of an Orb is stored within the token ID, digital genealogy is possible even in the event of defects (forks). An ecosystem without native dignitary is an ecosystem that has a chance to be free of the corruption of influencial power.
+
+Still tied to the hardships of the subconcious perception and memory-keeping, Orbs are a natively decentered system focused on abstraction, rather than authenticity or representation of self. Simply, with an eternal reference of defintion, Orbs are one of many visualizations of your digital and physical aura becoming one.
+
+> **Note**
+> You can visit [the Orb Rendering Engine](https://sftchance.com/) to see the results of the DNA of an Orb as well as mint it directly from the interface.
+
+With the established DNA of an Orb, the visualization extends beyond just an unclassed visualization and provides supporting written artifacts enabling more complex onchain integrations in JSON as:
+
+```json
+{
+    "name": "Orb #0",
+    "description": "Orb #0 is a unique Orb that is part of the CHANCE Orbs ecosystem.",
+    "image": "ipfs://Qm_Orb_0/?id=0",
+    "attributes": [
+        { 
+            "trait_type": "Quadrant",
+            "value": "Top Right"
+        }
+        {
+            "trait_type": "Background",
+            "value": 100000000
+        },
+        { 
+            "trait_type": "Primary Color",
+            "value": "Purple"
+        },
+        {
+            "trait_type": "Secondary Color",
+            "value": "White"
+        },
+        { 
+            "trait_type": "Scale Type",
+            "value": "Complementary"
+        },
+        {
+            "trait_type": "Color Count",
+            "value": 0
+        },
+        { 
+            "trait_type": "Max Suply",
+            "value": 100
+        },
+        { 
+            "trait_type": "Total Suply",
+            "value": 14
+        },
+        { 
+            "trait_type": "Seconds Left in Mint",
+            "value": 500000
+        },
+        { 
+            "trait_type": "Mint Price",
+            "value": 100000000000000000
+        },
+        { 
+            "trait_type": "Mint Fee Vault",
+            "value": "0x000"
+        },
+        { 
+            "trait_type": "Mint Vault Balance",
+            "value": 0
+        }
+    ]
 }
 ```
 
-With this, to load the Orb the DNA is instantiate as `105312285415975378509298838682582343862109712284319974254555693055`. This DNA is then fed into the rendering engine of Orbs to create the native visualization of the DNA.
+When an Orb does not have a value for the relevant field, the field is omitted from the JSON. This allows for the JSON to be as compact as possible while still providing all the relevant information for the Orb and never risking the reflection of a body that does not exist.
 
 ## 🖼️ Orb Rendering
 
 The rendering of an Orb is a simple process that takes the DNA of an Orb and renders it into a visual representation of the Orb.
 
-The rendering engine is built in a way that allows for the rendering of an Orb to be done onchain or offchain.
+Orbs are eternal to the defintion of Ethereum. The rendering engine is built in a way that allows for the rendering of an Orb to be done onchain or offchain without needing any external dependencies beyond an RPC.
+
+While there is an onchain representation, there is also an available offchain visualization for platforms that do not yet have support for onchain renderings that use SVGs.
 
 ## 🏃‍♂️ Running the Project
 

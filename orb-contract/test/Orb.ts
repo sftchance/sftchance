@@ -3,6 +3,24 @@ import { anyValue } from '@nomicfoundation/hardhat-chai-matchers/withArgs';
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 
+type Color = [number, number, number, number];
+
+const getId = (colors: Color[]) => {
+    let id = 0;
+
+    for (let i = 0; i < colors.length; i++) {
+        const color = colors[i];
+
+        const colorUint32 = (color[0] << 24) | (color[1] << 16) | (color[2] << 8) | color[3];
+
+        id = id << 32;
+
+        id = id | colorUint32;
+    }
+
+    return id;
+};
+
 describe('Orb', () => {
     const IPFS_HASH: string = 'Qm';
     const LAYERS: any[] = ['svg_test_layer', 'deeper_svg_test_layer'];
@@ -79,7 +97,7 @@ describe('Orb', () => {
     });
 
     describe('Loading, Minting and Burning', () => {
-        it('Should not be able to mint Orb without colors', async () => {
+        it('Should not be able to mint Orb with invalid colors', async () => {
             const { deployer, orb } = await loadFixture(deployOrbFixture);
 
             const id = 0;
@@ -88,6 +106,24 @@ describe('Orb', () => {
             await expect(orb.mint(deployer.address, id, amount, '0x')).to.be.revertedWith(
                 'Orb::onlyValidID: no colors',
             );
+        });
+
+        it('Should not be able to mint Orb with invalid domain', async () => {
+            const { deployer, orb } = await loadFixture(deployOrbFixture);
+
+            const colors: Color[] = [
+                [0, 255, 255, 255],
+                [100, 0, 0, 0],
+            ];
+
+            const id = getId(colors);
+            console.log(id);
+
+            // const amount = 1;
+
+            // await expect(orb.mint(deployer.address, id, amount, colors)).to.be.revertedWith(
+            //     'Orb::onlyValidID: invalid domain',
+            // );
         });
 
         // TODO: Test invalid domain use

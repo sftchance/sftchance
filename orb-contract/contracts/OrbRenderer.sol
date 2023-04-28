@@ -75,15 +75,19 @@ contract OrbRenderer is IOrbRenderer {
         uint32 color;
 
         /// @dev Extract the first 32 bits of the token ID.
+        /// @notice The last segment in a token ID contains two coordinates that
+        ///         are each 9 bits in length. The first coordinate is the
+        ///         x-coordinate and the second coordinate is the y-coordinate
+        ///         for the center of the radial gradient.
         uint32 coords = color.color($id, MAX_STOPS);
 
         /// @dev Prepare the head of the Orb gradient declaration.
         $gradient = string.concat(
             '<defs><radialGradient id="gradient" gradientUnits="userSpaceOnUse" gradientTransform="translate(',
-            uint256(uint16(coords)).toString(),
+            uint256(coords.coordinate(0)).toString(),
             " ",
-            uint256(uint16(coords >> 16)).toString(),
-            ') rotate(134.804) scale(250.809 263.344)">'
+            uint256(coords.coordinate(1)).toString(),
+            ') rotate(135) scale(251 263)">'
         );
 
         /// @dev Iterate over the gradient stops.
