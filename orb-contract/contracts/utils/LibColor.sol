@@ -118,7 +118,7 @@ library LibColor {
     function empty(uint32 $color) public pure returns (bool $empty) {
         /// @dev Get the last bit and determine if it has been toggled to signal
         ///      that the color is empty.
-        $empty = ($color >> (HEX_SIZE - 1)) == 1;
+        $empty = ($color >> (HEX_SIZE - 1)) == 0;
     }
 
     /**

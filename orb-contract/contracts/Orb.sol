@@ -174,6 +174,12 @@ contract Orb is IOrb, ERC1155 {
         /// @dev Confirm the forked provenance exists.
         require($forkedId != 0, "Orb::load: forked provenance not found");
 
+        /// @dev Confirm the `forkedId` has been minted.
+        require(
+            provenance[$forkedId].totalSupply > 0,
+            "Orb::load: forked provenance not found"
+        );
+
         /// @dev Load the provenance into a new token ID.
         load($id, $provenance);
 
@@ -212,7 +218,7 @@ contract Orb is IOrb, ERC1155 {
         uint256 $id,
         uint32 $amount,
         bytes memory $data
-    ) public payable virtual {
+    ) public payable virtual onlyValidID($id) {
         /// @dev Warming up the provenance mappings.
         Provenance storage provenanceRef = provenance[$id];
 

@@ -5,7 +5,19 @@ import '@nomicfoundation/hardhat-toolbox';
 // Deployment task
 
 const config: HardhatUserConfig = {
-    solidity: '0.8.18',
+    solidity: {
+        compilers: [
+            {
+                version: '0.8.18',
+                settings: {
+                    optimizer: {
+                        enabled: true,
+                        runs: 100000000,
+                    },
+                },
+            },
+        ],
+    },
 };
 
 export default config;
