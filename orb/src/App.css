@@ -39,7 +39,8 @@
 
 .preview {
     width: 100vw;
-    padding-block: 60px;
+    padding-block: 20px;
+    margin-top: 50px;
     transition: all 0.2s ease-in-out;
     opacity: 0;
     transform: translateY(20px);
@@ -48,8 +49,8 @@
 
 .image {
     background: transparent;
-    height: 400px;
-    width: 400px;
+    height: 300px;
+    width: 100%;
     display: grid;
     position: relative;
     margin: auto;
@@ -62,8 +63,8 @@
 }
 
 .image .shadow {
-    height: 300px;
-    width: 300px;
+    height: 200px;
+    width: 200px;
     background: radial-gradient(
         95.24% 100.5% at 2.04% 40.07%,
         rgba(0, 0, 0, 0.1) 0%,
@@ -84,8 +85,8 @@
 }
 
 .image .texture {
-    height: 300px;
-    width: 300px;
+    height: 200px;
+    width: 200px;
     position: absolute;
     transform: translate(-50%, -50%) rotate(-20deg);
     top: 50%;
@@ -94,8 +95,8 @@
 }
 
 .image .noise {
-    height: 300px;
-    width: 300px;
+    height: 200px;
+    width: 200px;
     position: absolute;
     border-radius: 50%;
     transform: translate(-50%, -50%) rotate(90deg);
@@ -107,8 +108,8 @@
 .image .texture.blurred,
 .image .noise.blurred,
 .image .orb.blurred {
-    height: 315px;
-    width: 315px;
+    height: 215px;
+    width: 215px;
     filter: blur(10px);
     -webkit-filter: blur(10px);
     -moz-filter: blur(10px);
@@ -120,14 +121,14 @@
     position: absolute;
     top: 0;
     left: 0;
-    height: 350px;
-    width: 350px;
+    bottom: 0;
+    right: 0;
 }
 
 .image .orb {
     border-radius: 50%;
-    height: 300px;
-    width: 300px;
+    height: 200px;
+    width: 200px;
     position: absolute;
     transform: translate(-50%, -50%) rotate(90deg);
     top: 50%;
@@ -136,10 +137,9 @@
 
 .colors {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(minmax(250px, 1fr), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 10px;
     margin-inline: 20px;
-    padding-top: 40px;
 }
 
 .colors .color,
@@ -259,7 +259,6 @@
     background: transparent;
     border: none;
     cursor: pointer;
-    width: 20px;
     position: relative;
 }
 
@@ -267,11 +266,11 @@
 .colors .color button.hide {
     position: relative;
     z-index: 11;
-    top: -1px;
+    top: -2px;
 }
 
-.colors .color button.hide {
-    margin-right: 10px;
+.colors .color button svg {
+    height: 0.75rem;
 }
 
 .colors .color .dark input,

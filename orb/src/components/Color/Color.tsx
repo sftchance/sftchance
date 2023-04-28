@@ -39,10 +39,6 @@ const Color = ({
             }}
         >
             <div className={isDark(color.hex) ? 'light' : 'dark'}>
-                <button className="hide" onClick={() => onHide(index)}>
-                    <FontAwesomeIcon icon={faEye} />
-                </button>
-
                 <input
                     type="text"
                     value={color.hex}
@@ -50,6 +46,10 @@ const Color = ({
                         onChange(index, e);
                     }}
                 />
+
+                <button className="hide" onClick={() => onHide(index)}>
+                    <FontAwesomeIcon icon={faEye} />
+                </button>
 
                 <button className="toggle" onClick={() => onToggle(index)}>
                     {color.locked ? <FontAwesomeIcon icon={faLock} /> : <FontAwesomeIcon icon={faLockOpen} />}
