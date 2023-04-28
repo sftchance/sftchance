@@ -3,24 +3,6 @@ import { anyValue } from '@nomicfoundation/hardhat-chai-matchers/withArgs';
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 
-type Color = [number, number, number, number];
-
-const getId = (colors: Color[]) => {
-    let id = 0;
-
-    for (let i = 0; i < colors.length; i++) {
-        const color = colors[i];
-
-        const colorUint32 = (color[0] << 24) | (color[1] << 16) | (color[2] << 8) | color[3];
-
-        id = id << 32;
-
-        id = id | colorUint32;
-    }
-
-    return id;
-};
-
 describe('Orb', () => {
     const IPFS_HASH: string = 'Qm';
     const LAYERS: any[] = ['svg_test_layer', 'deeper_svg_test_layer'];
@@ -68,6 +50,20 @@ describe('Orb', () => {
     };
 
     describe('Deployment', () => {
+        it('Should get the correct token ID of the color map', async () => {
+            const map: any = {
+                colors: [{ empty: false, r: 255, g: 255, b: 255 }],
+            };
+
+            const id = getId(map);
+
+            console.log(id);
+
+            const _map = getMap(id);
+
+            expect(_map).to.deep.equal(map);
+        });
+
         it('Should set the right IPFS hash', async () => {
             const { orbRenderer } = await loadFixture(deployOrbRendererFixture);
 
@@ -108,23 +104,23 @@ describe('Orb', () => {
             );
         });
 
-        it('Should not be able to mint Orb with invalid domain', async () => {
-            const { deployer, orb } = await loadFixture(deployOrbFixture);
+        // it('Should not be able to mint Orb with invalid domain', async () => {
+        //     const { deployer, orb } = await loadFixture(deployOrbFixture);
 
-            const colors: Color[] = [
-                [0, 255, 255, 255],
-                [100, 0, 0, 0],
-            ];
+        //     const colors: Color[] = [
+        //         [0, 255, 255, 255],
+        //         [100, 0, 0, 0],
+        //     ];
 
-            const id = getId(colors);
-            console.log(id);
+        //     const id = getId(colors);
+        //     console.log(id);
 
-            // const amount = 1;
+        //     // const amount = 1;
 
-            // await expect(orb.mint(deployer.address, id, amount, colors)).to.be.revertedWith(
-            //     'Orb::onlyValidID: invalid domain',
-            // );
-        });
+        //     // await expect(orb.mint(deployer.address, id, amount, colors)).to.be.revertedWith(
+        //     //     'Orb::onlyValidID: invalid domain',
+        //     // );
+        // });
 
         // TODO: Test invalid domain use
 

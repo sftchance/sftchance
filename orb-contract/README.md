@@ -46,22 +46,14 @@ type Color = {
 type ColorMap = {
     x: number;
     y: number;
+    speed: number;
+    colorCount: number;
     bgTransparent: boolean;
     bgScalar: number;
-    colorCount: number;
     colors: Color[];
 }
 
-export const bitpackColor = (colors: number[][], color = 0) => {
-    for (let i = 0; i < colors.length; i++) {
-        const rgb = colors[i];
-        color += rgb[0] << (i * 32);
-        color += rgb[1] << (i * 32 + 8);
-        color += rgb[2] << (i * 32 + 16);
-    }
-    
-    return color;
-}
+// TODO: Include encoding and decoding functions here.
 ```
 
 With this, the Orbs foundational DNA is `105312285415975378509298838682582343862109712284319974254555693055`. The creation and implemenation of DNA does not stop here, though. This foundational piece of DNA is then appended with a *head* and fed into the rendering engine of Orbs to create the native visualization of the DNA.
@@ -70,7 +62,7 @@ While the visualization here is straightforward, there are onchain enforcement c
 
 When all comes together, a token ID is created by the bitpacking of:
 
-```python
+```tsx
 pos  (18 bits) = | x (9 bits) | y (9 bits) |
 
 top  (32 bits) = | speed (2 bit) | col_count (3 bits) | bg_scalar (9 bits) | pos (18 bits) |

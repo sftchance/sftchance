@@ -1,6 +1,6 @@
 import chroma from 'chroma-js';
 
-import { Color } from './types';
+import { Color, OnchainColor, OnchainColorMap } from './types';
 
 export const getRandomColor = (): string => {
     return chroma.random().hex();
@@ -97,20 +97,67 @@ export const getRandomColors = (
         });
 };
 
-export const bitpackColor = (colors: number[][], color = 0) => {
+export const colorMapToId = (colorMap: OnchainColorMap): number => {
+    const dna = bitpackColor(colorMap.colors);
+
+    return dna;
+};
+
+export const colorMapFromId = (id: string): OnchainColorMap => {
+    const map: OnchainColorMap = {
+        x: 0,
+        y: 0,
+        speed: 0,
+        colorCount: 0,
+        bgTransparent: false,
+        bgScalar: 0,
+        colors: [],
+    };
+
+    return map;
+};
+
+export const bitpackColor = (colors: OnchainColor[], color = 0) => {
     for (let i = 0; i < colors.length; i++) {
-        const rgb = colors[i];
-        color += rgb[0] << (i * 32);
-        color += rgb[1] << (i * 32 + 8);
-        color += rgb[2] << (i * 32 + 16);
+        const c = colors[i];
+
+        color |= !c.empty ? 1 : 0 << 31;
+        color |= c.domain << 30;
+        color |= c.r << 20;
+        color |= c.g << 10;
+        color |= c.b << 0;
+
+        if (i < colors.length - 1) {
+            color <<= 32;
+        }
+
+        console.log('color', color);
     }
+
+    console.log(recoverColor(color, colors.length));
 
     return color;
 };
 
-export const recoverColor = (color: number, length: number, colors: number[][] = []) => {
+export const recoverColor = (color: number, length: number, colors: OnchainColor[] = []) => {
     for (let i = length; i > -1; i--) {
-        colors.push([(color >> (i * 32)) & 0xff, (color >> (i * 32 + 8)) & 0xff, (color >> (i * 32 + 16)) & 0xff]);
+        const c: OnchainColor = {
+            empty: false,
+            domain: 0,
+            r: 0,
+            g: 0,
+            b: 0,
+        };
+
+        c.empty = (color & (1 << 31)) !== 0;
+        c.domain = (color & (1 << 30)) !== 0 ? 1 : 0;
+        c.r = (color & (0x3ff << 20)) >> 20;
+        c.g = (color & (0x3ff << 10)) >> 10;
+        c.b = (color & (0xff << 0)) >> 0;
+
+        colors.push(c);
+
+        color >>= 32;
     }
 
     return colors;
