@@ -37,15 +37,10 @@
     right: calc(5% + 106px);
 }
 
-.buffer {
-    height: 50px;
-    width: 100vw;
-}
-
 .preview {
     width: 100vw;
     height: 100%;
-    padding-block: 20px;
+    padding-block: 40px;
     transition: all 0.2s ease-in-out;
     opacity: 0;
     transform: translateY(20px);
@@ -54,8 +49,8 @@
 
 .image {
     background: transparent;
-    width: auto;
     height: 350px;
+    width: 350px;
     display: grid;
     position: relative;
     margin: auto;
