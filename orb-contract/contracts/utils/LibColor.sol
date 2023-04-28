@@ -2,6 +2,7 @@
 
 pragma solidity ^0.8.18;
 
+/// @dev Helper libraries.
 import {LibString} from "solady/src/utils/LibString.sol";
 
 /**
@@ -35,6 +36,13 @@ library LibColor {
     /// @dev The size of the domain index in each bitpacked value.
     uint256 constant DOMAIN_OFFSET = SHORT_SIZE * 3;
 
+    /**
+     * @notice Get the bitpacked value of the color extracted from the
+     *         colormap at the given index.
+     * @param $map The colormap to extract the color from.
+     * @param $index The index of the color in the colormap.
+     * @return $color The extracted, but still bitpacked color.
+     */
     function color(
         uint32,
         uint256 $map,
@@ -44,21 +52,44 @@ library LibColor {
         $color = uint32(($map >> ($index * HEX_SIZE)) & HEX_MASK);
     }
 
+    /**
+     * @notice Get the [0-255] value of the red channel of the color.
+     * @param $color The bitpacked color to extract the red channel from.
+     * @return $r The [0-255] value of the red channel of the color.
+     */
     function r(uint32 $color) public pure returns (uint8 $r) {
         /// @dev Extract the rgb values from the bitpacked color.
         $r = uint8($color & SHORT_MASK);
     }
 
+    /**
+     * @notice Get the [0-255] value of the green channel of the color.
+     * @param $color The bitpacked color to extract the green channel from.
+     * @return $g The [0-255] value of the green channel of the color.
+     */
     function g(uint32 $color) public pure returns (uint8 $g) {
         /// @dev Extract the rgb values from the bitpacked color.
         $g = uint8(($color >> SHORT_SIZE) & SHORT_MASK);
     }
 
+    /**
+     * @notice Get the [0-255] value of the blue channel of the color.
+     * @param $color The bitpacked color to extract the blue channel from.
+     * @return $b The [0-255] value of the blue channel of the color.
+     */
     function b(uint32 $color) public pure returns (uint8 $b) {
         /// @dev Extract the rgb values from the bitpacked color.
         $b = uint8(($color >> (SHORT_SIZE * 2)) & SHORT_MASK);
     }
 
+    /**
+     * @notice Get the [0-255] value of the red, green, and blue channels of the
+     *        color.
+     * @param $color The bitpacked color to extract the rgb channels from.
+     * @return $r The [0-255] value of the red channel of the color.
+     * @return $g The [0-255] value of the green channel of the color.
+     * @return $b The [0-255] value of the blue channel of the color.
+     */
     function rgb(
         uint32 $color
     ) public pure returns (uint8 $r, uint8 $g, uint8 $b) {
@@ -68,18 +99,33 @@ library LibColor {
         $b = b($color);
     }
 
-    function domain(uint32 $color) public pure returns (string memory $domain) {
+    /**
+     * @notice Get the [0-100] value of the red channel of the color.
+     * @param $color The bitpacked color to extract the red channel from.
+     * @return $domain The [0-100] value of the color in the gradient.
+     */
+    function domain(uint32 $color) public pure returns (uint8 $domain) {
         /// @dev Get the last 8 bits from `$color` and convert it to a `uint8`
         ///      value representing the domain of the color.
-        $domain = uint8(($color >> DOMAIN_OFFSET) & SHORT_MASK).toString();
+        $domain = uint8(($color >> DOMAIN_OFFSET) & SHORT_MASK);
     }
 
+    /**
+     * @notice Determine if a color has been purposefully set to empty.
+     * @param $color The bitpacked color to check if it is empty.
+     * @return $empty Whether or not the color is empty.
+     */
     function empty(uint32 $color) public pure returns (bool $empty) {
         /// @dev Get the last bit and determine if it has been toggled to signal
         ///      that the color is empty.
         $empty = ($color >> (HEX_SIZE - 1)) == 1;
     }
 
+    /**
+     * @notice Get the hexadecimal string representation of the color.
+     * @param $color The bitpacked color to convert to a hexadecimal string.
+     * @return $hex The hexadecimal string representation of the color.
+     */
     function hexadecimal(
         uint32 $color
     ) public pure returns (string memory $hex) {

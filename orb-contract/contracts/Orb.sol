@@ -9,6 +9,9 @@ import {ERC1155} from "solady/src/tokens/ERC1155.sol";
 /// @dev Interface dependencies.
 import {OrbRenderer} from "./OrbRenderer.sol";
 
+/// @dev Helper libraries.
+import {LibColor} from "./utils/LibColor.sol";
+
 /**
  * @title Orb: The identity representation of a CHANCE reflected in an abstract Orb form.
  * @author sftchance.eth
@@ -24,6 +27,8 @@ import {OrbRenderer} from "./OrbRenderer.sol";
  *         To protect the outcome, every action is acknowledged and accounted for in detail.
  */
 contract Orb is IOrb, ERC1155 {
+    using LibColor for uint32;
+
     /// @dev The address of the deployer of the contract.
     address payable public deployer;
 
@@ -45,13 +50,57 @@ contract Orb is IOrb, ERC1155 {
         renderer = $renderer;
     }
 
+    modifier onlyValidID(uint256 $id) {
+        /// @dev If a token has already been minted, we know it to be valid.
+        if (provenance[$id].totalSupply > 0) return;
+
+        /// @dev Warming up the temporary color storage slot.
+        uint32 $color;
+
+        /// @dev Tracking the last domain used to prevent broken Orbs.
+        uint8 prevDomain;
+
+        /// @dev Counting the number of colors in the provided Orb color definition.
+        uint8 colors;
+
+        /// @dev Truncate the 256 bits to 224, trimming the map to exclude the last
+        ///      32 bits which are used for the positional data of the Orb gradient.
+        uint224 id = uint224($id);
+
+        /// @dev Truncate the 256 bits to 224, trimming the map to exclude the last
+        ///      32 bits which are used for the positional data of the Orb gradient.
+        for (id; id > 0; id >>= LibColor.HEX_SIZE) {
+            /// @dev The color is the last 32 bits of the ID.
+            $color = uint32(id & LibColor.HEX_MASK);
+
+            /// @dev Confirm the domain of the active stop is increasing.
+            require(
+                $color.domain() > prevDomain,
+                "Orb::onlyValidID: invalid color domain"
+            );
+
+            /// @dev Keep track when there is a color to render.
+            if (!$color.empty()) colors++;
+        }
+
+        /// @dev Prevent empty Orbs from being drawn.
+        require(colors > 0, "Orb::onlyValidID: no colors");
+
+        /// @dev Refund all the storage gas used to check the ID.
+        delete $color;
+        delete prevDomain;
+        delete colors;
+
+        _;
+    }
+
     /**
      * See {IOrb-load}.
      */
     function load(
         uint256 $id,
         Provenance memory $provenance
-    ) public payable virtual returns (uint256) {
+    ) public payable virtual onlyValidID($id) {
         /// @dev Warming up the provenance mappings.
         Provenance storage provenanceRef = provenance[$id];
 
@@ -112,9 +161,6 @@ contract Orb is IOrb, ERC1155 {
 
         /// @dev Emit the load event.
         emit Load(msg.sender, $id);
-
-        /// @dev Return the token ID of the loaded Orb.
-        return $id;
     }
 
     /**
@@ -124,12 +170,12 @@ contract Orb is IOrb, ERC1155 {
         uint256 $forkedId,
         uint256 $id,
         Provenance memory $provenance
-    ) public payable virtual returns (uint256 forkId) {
+    ) public payable virtual onlyValidID($forkedId) {
         /// @dev Confirm the forked provenance exists.
         require($forkedId != 0, "Orb::load: forked provenance not found");
 
         /// @dev Load the provenance into a new token ID.
-        forkId = load($id, $provenance);
+        load($id, $provenance);
 
         /// @dev Emit the fork event.
         emit Fork(msg.sender, $forkedId, $id);

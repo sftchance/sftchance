@@ -36,6 +36,7 @@ import {LibString} from "solady/src/utils/LibString.sol";
  */
 contract OrbRenderer is IOrbRenderer {
     using LibColor for uint32;
+    using LibString for uint8;
     using LibString for uint256;
 
     /// @dev The maximum number of gradient stops an Orb can have.
@@ -68,12 +69,23 @@ contract OrbRenderer is IOrbRenderer {
     function gradient(
         uint256 $id
     ) internal pure returns (string memory $gradient) {
-        /// @dev Initialize the top of the gradient.
-        $gradient = '<defs><radialGradient id="gradient" gradientUnits="userSpaceOnUse" gradientTransform="translate(186.276 6.31085) rotate(134.804) scale(250.809 263.344)">';
-
         /// @dev Prepare the metadata information slots.
         uint8 i;
         uint32 color;
+
+        /// @dev Extract the first 32 bits of the token ID.
+        uint32 coords = color.color($id, MAX_STOPS);
+
+        uint256 x = uint16(coords);
+        uint256 y = uint16(coords >> 16);
+
+        /// @dev Prepare the head of the Orb gradient declaration.
+        $gradient = string.concat(
+            '<defs><radialGradient id="gradient" gradientUnits="userSpaceOnUse" gradientTransform="translate(',
+            string.concat(string.concat($gradient, x.toString()), " "),
+            string.concat($gradient, y.toString()),
+            ') rotate(134.804) scale(250.809 263.344)">'
+        );
 
         /// @dev Iterate over the gradient stops.
         for (i; i < MAX_STOPS; i++) {
@@ -90,7 +102,7 @@ contract OrbRenderer is IOrbRenderer {
                 '<stop stop-color="#',
                 color.hexadecimal(),
                 '" offset="',
-                color.domain(),
+                color.domain().toString(),
                 '%"/>'
             );
         }

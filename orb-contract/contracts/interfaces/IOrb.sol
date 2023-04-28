@@ -28,10 +28,7 @@ interface IOrb {
      * @param $id The token ID of the Orb being minted reprsenting the DNA of the colors.
      * @param $provenance The provenance data of the Orb.
      */
-    function load(
-        uint256 $id,
-        Provenance memory $provenance
-    ) external payable returns (uint256);
+    function load(uint256 $id, Provenance memory $provenance) external payable;
 
     /**
      * @notice Enables the forking of an existing Orb.
@@ -43,7 +40,7 @@ interface IOrb {
         uint256 $forkedId,
         uint256 $id,
         Provenance memory $provenance
-    ) external payable returns (uint256);
+    ) external payable;
 
     /**
      * @notice Forfeits the provenance of an Orb.
