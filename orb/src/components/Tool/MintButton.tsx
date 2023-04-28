@@ -1,10 +1,12 @@
-import { useAccount, useConnect, useContractWrite, useEnsName, usePrepareContractWrite } from 'wagmi';
+import { useAccount, useConnect, useEnsName } from 'wagmi';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 
 import { Color } from '../../types';
 
 const MintButton = ({ colors, onMint }: { colors: Color[]; onMint: () => void }) => {
     const { address, isConnected } = useAccount();
+
+    console.log(colors, onMint);
 
     const { connect } = useConnect({
         connector: new InjectedConnector(),
