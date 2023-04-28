@@ -79,19 +79,18 @@ describe('Orb', () => {
     });
 
     describe('Loading, Minting and Burning', () => {
-        // TODO: Test invalid domain use
-
         it('Should not be able to mint Orb without colors', async () => {
             const { deployer, orb } = await loadFixture(deployOrbFixture);
 
             const id = 0;
-
             const amount = 1;
 
             await expect(orb.mint(deployer.address, id, amount, '0x')).to.be.revertedWith(
                 'Orb::onlyValidID: no colors',
             );
         });
+
+        // TODO: Test invalid domain use
 
         // TODO: Test valid mint
         // TODO: Test IPFS uri
