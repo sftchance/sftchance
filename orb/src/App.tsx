@@ -6,7 +6,7 @@ import { getRandomColors } from './utils';
 
 import { DEFAULT_COLORS } from './constants';
 
-import { Colors, IconButtons, MintButton, Preview } from './components';
+import { Colors, IconButtons, Preview } from './components';
 
 import './App.css';
 
@@ -15,6 +15,7 @@ const URL_COLOR_CODES = new URLSearchParams(window.location.search).getAll('colo
 const URL_COLORS = URL_COLOR_CODES.map((hex, index) => ({
     hex,
     position: DEFAULT_COLORS[index].position,
+    hidden: false,
     locked: false,
 }));
 
@@ -40,9 +41,11 @@ function App() {
     useEffect(() => {
         const params = new URLSearchParams();
 
-        colors.forEach((color) => {
-            params.append('color', color.hex);
-        });
+        colors
+            .filter((color) => !color.hidden)
+            .forEach((color) => {
+                params.append('color', color.hex);
+            });
 
         window.history.replaceState({}, '', `${window.location.pathname}?${params}`);
     }, [colors]);
@@ -71,12 +74,15 @@ function App() {
                 onChange={(index, e) => {
                     onColorChange(index, colors[index], 'hex', e.target.value);
                 }}
+                onHide={(index) => {
+                    onColorChange(index, colors[index], 'hidden', !colors[index].hidden);
+                }}
                 onToggle={(index) => {
                     onColorChange(index, colors[index], 'locked', !colors[index].locked);
                 }}
             />
 
-            <MintButton colors={colors} />
+            {/* <MintButton colors={colors} /> */}
         </>
     );
 }

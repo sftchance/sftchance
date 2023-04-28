@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLock, faLockOpen } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faLock, faLockOpen } from '@fortawesome/free-solid-svg-icons';
 
 import { Color as ColorType } from '../../types';
 
@@ -7,11 +7,13 @@ const Color = ({
     index,
     color,
     onChange,
+    onHide,
     onToggle,
 }: {
     index: number;
     color: ColorType;
     onChange: (index: number, e: React.ChangeEvent<HTMLInputElement>) => void;
+    onHide: (index: number) => void;
     onToggle: (index: number) => void;
 }) => {
     const isDark = (hex: string, threshold = 0.3): boolean => {
@@ -30,13 +32,17 @@ const Color = ({
 
     return (
         <div
-            className="color"
+            className={`color ${color.hidden ? 'hidden' : ''}`}
             style={{ background: color.hex }}
             onClick={() => {
                 navigator.clipboard.writeText(color.hex.toUpperCase());
             }}
         >
             <div className={isDark(color.hex) ? 'light' : 'dark'}>
+                <button className="hide" onClick={() => onHide(index)}>
+                    <FontAwesomeIcon icon={faEye} />
+                </button>
+
                 <input
                     type="text"
                     value={color.hex}

@@ -5,16 +5,25 @@ import { Color } from './Color';
 const Colors = ({
     colors,
     onChange,
+    onHide,
     onToggle,
 }: {
     colors: ColorType[];
     onChange: (index: number, e: React.ChangeEvent<HTMLInputElement>) => void;
+    onHide: (index: number) => void;
     onToggle: (index: number) => void;
 }) => {
     return (
         <div className="colors">
             {colors.map((color, index) => (
-                <Color key={index} index={index} color={color} onChange={onChange} onToggle={() => onToggle(index)} />
+                <Color
+                    key={index}
+                    index={index}
+                    color={color}
+                    onChange={onChange}
+                    onHide={() => onHide(index)}
+                    onToggle={() => onToggle(index)}
+                />
             ))}
         </div>
     );

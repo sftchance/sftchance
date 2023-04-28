@@ -45,10 +45,12 @@ svg path {
 svg:hover path {
     fill: rgba(255, 255, 255, 0.87);
     box-shadow: 0 0 12px 24px rgba(255, 255, 255, 0.87);
+    transform: scale(1.02);
 }
 
 svg:focus path,
 svg:active path {
     fill: rgba(255, 255, 255, 1);
     box-shadow: 0 0 12px 24px rgba(255, 255, 255, 0.87);
+    transform: scale(0.98);
 }

@@ -13,6 +13,7 @@ const Preview = ({
 }) => {
     const orbStyle = {
         background: `radial-gradient(95.24% 100.5% at 2.04% 40.07%, ${colors
+            .filter((color) => !color.hidden)
             .map((color) => {
                 return `${color.hex} ${color.position}%`;
             })
