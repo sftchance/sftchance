@@ -76,6 +76,7 @@ function App() {
                 }}
             />
 
+            <div className="buffer" />
             <Preview previewRef={previewRef} colors={colors} paused={paused} />
 
             <Colors
