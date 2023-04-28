@@ -1,10 +1,10 @@
 import {
-    faClipboard,
+    faLink,
+    faWandMagic,
     faPlay,
     faPause,
     faRefresh,
     faShuffle,
-    faSave,
     faDownload,
 } from '@fortawesome/free-solid-svg-icons';
 
@@ -18,16 +18,20 @@ const IconButtons = ({
     previewRef,
     paused,
     colors,
+    perfect,
     onReset,
     onPause,
     onShuffle,
+    onWand,
 }: {
     previewRef: React.RefObject<HTMLDivElement>;
     paused: boolean;
     colors: Color[];
+    perfect: boolean;
     onReset: () => void;
     onPause: () => void;
     onShuffle: () => void;
+    onWand: () => void;
 }) => {
     return (
         <>
@@ -35,11 +39,13 @@ const IconButtons = ({
 
             <IconButton className="shuffle" icon={faShuffle} onClick={onShuffle} />
 
+            {!perfect && <IconButton className="wand" icon={faWandMagic} onClick={onWand} />}
+
             <IconButton className="pause" icon={paused ? faPlay : faPause} onClick={onPause} />
 
             <IconButton
                 className="copy"
-                icon={faClipboard}
+                icon={faLink}
                 onClick={() => {
                     navigator.clipboard.writeText(window.location.href);
                 }}

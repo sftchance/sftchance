@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Color } from './types';
 
-import { getRandomColors } from './utils';
+import { getAlgorithmicRandomColors, getMagicWandColors } from './utils';
 
 import { DEFAULT_COLORS } from './constants';
 
@@ -26,6 +26,13 @@ function App() {
 
     const [colors, setColors] = useState<Color[]>(INIT_COLORS);
     const [paused, setPaused] = useState<boolean>(false);
+
+    const { wandColors, perfect } = useMemo(() => {
+        return {
+            wandColors: getMagicWandColors(colors),
+            perfect: colors.every((color, index) => color.hex === getMagicWandColors(colors)[index].hex),
+        };
+    }, [colors]);
 
     const onColorChange = (index: number, color: Color, key: keyof Color, value: string | number | boolean) => {
         setColors([
@@ -54,6 +61,7 @@ function App() {
                 previewRef={previewRef}
                 paused={paused}
                 colors={colors}
+                perfect={perfect}
                 onReset={() => {
                     setColors(DEFAULT_COLORS);
                 }}
@@ -61,7 +69,10 @@ function App() {
                     setPaused((paused) => !paused);
                 }}
                 onShuffle={() => {
-                    setColors((colors) => getRandomColors(colors));
+                    setColors((colors) => getMagicWandColors(getAlgorithmicRandomColors(colors)));
+                }}
+                onWand={() => {
+                    setColors(wandColors);
                 }}
             />
 

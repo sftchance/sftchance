@@ -2,7 +2,8 @@
 .reset,
 .pause,
 .shuffle,
-.save {
+.save,
+.wand {
     background: transparent;
     border: none;
     cursor: pointer;
@@ -17,12 +18,13 @@
     right: initial;
 }
 
-.save {
-    right: calc(5% + 50px);
+.wand {
+    left: calc(5% + 106px);
+    right: initial;
 }
 
-.save.transparent {
-    right: calc(5% + 106px);
+.save {
+    right: calc(5% + 50px);
 }
 
 .reset {
@@ -32,7 +34,7 @@
 
 .pause {
     right: initial;
-    left: calc(5% + 106px);
+    right: calc(5% + 106px);
 }
 
 .preview {
