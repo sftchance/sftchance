@@ -111,7 +111,7 @@ contract OrbRenderer is IOrbRenderer {
     }
 
     /**
-     * See {IOrbRenderer-uri}.
+     * See {IOrbRenderer-svg}.
      */
     function svg(uint256 $id) public view virtual returns (string memory $svg) {
         /// @dev Initialize the SVG.
@@ -142,6 +142,9 @@ contract OrbRenderer is IOrbRenderer {
         );
     }
 
+    /**
+     * See {IOrbRenderer-uri}.
+     */
     function uri(
         uint256 $id
     ) public view virtual returns (string memory metadata) {

@@ -8,7 +8,14 @@ interface IOrbRenderer {
      * @param $id The token ID of the Orb.
      * @return svg The SVG representation of the Orb.
      */
-    function uri(uint256 $id) external view returns (string memory svg);
+    function svg(uint256 $id) external view returns (string memory);
+
+    /**
+     * @notice Returns the URI of an Orb.
+     * @param $id The token ID of the Orb.
+     * @return The URI of the Orb.
+     */
+    function uri(uint256 $id) external view returns (string memory);
 
     /**
      * @notice Returns the IPFS URI of an Orb.
