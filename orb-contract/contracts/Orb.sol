@@ -269,13 +269,15 @@ contract Orb is IOrb, ERC1155 {
     /**
      * See {ERC1155-uri}.
      */
-    function uri(uint256 $id) public view override returns (string memory) {
+    function uri(
+        uint256 $id
+    ) public view override onlyValidID($id) returns (string memory $uri) {
         /// @dev Guard against the Onchain Renderer being used when disabled.
         if (provenance[$id].useIPFS > 0)
             /// @dev Return the built URI.
-            return renderer.uriIPFS($id);
+            $uri = renderer.uriIPFS($id);
 
         /// @dev Render the Orb using the onchain engine.
-        return renderer.uri($id);
+        $uri = renderer.uri($id);
     }
 }

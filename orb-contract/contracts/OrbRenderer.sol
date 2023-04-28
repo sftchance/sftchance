@@ -6,6 +6,7 @@ pragma solidity ^0.8.18;
 import {IOrbRenderer} from "./interfaces/IOrbRenderer.sol";
 
 /// @dev Helper libraries.
+import {Base64} from "solady/src/utils/Base64.sol";
 import {LibColor} from "./utils/LibColor.sol";
 import {LibString} from "solady/src/utils/LibString.sol";
 
@@ -35,6 +36,7 @@ import {LibString} from "solady/src/utils/LibString.sol";
  *         the token ID are reserved for supporting metadata.
  */
 contract OrbRenderer is IOrbRenderer {
+    using Base64 for bytes;
     using LibColor for uint32;
     using LibString for uint256;
 
@@ -78,11 +80,9 @@ contract OrbRenderer is IOrbRenderer {
         /// @dev Prepare the head of the Orb gradient declaration.
         $gradient = string.concat(
             '<defs><radialGradient id="gradient" gradientUnits="userSpaceOnUse" gradientTransform="translate(',
-            string.concat(
-                string.concat($gradient, uint256(uint16(coords)).toString()),
-                " "
-            ),
-            string.concat($gradient, uint256(uint16(coords >> 16)).toString()),
+            uint256(uint16(coords)).toString(),
+            " ",
+            uint256(uint16(coords >> 16)).toString(),
             ') rotate(134.804) scale(250.809 263.344)">'
         );
 
@@ -113,32 +113,55 @@ contract OrbRenderer is IOrbRenderer {
     /**
      * See {IOrbRenderer-uri}.
      */
-    function uri(uint256 $id) public view virtual returns (string memory svg) {
+    function svg(uint256 $id) public view virtual returns (string memory $svg) {
         /// @dev Initialize the SVG.
-        svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">';
+        $svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">';
 
         /// @dev Add a black background to the SVG.
-        svg = string.concat(
-            svg,
+        $svg = string.concat(
+            $svg,
             '<rect width="100" height="100" fill="#000"/>'
         );
 
-        /// @dev Register the gradient in the SVG.
-        svg = string.concat(svg, gradient($id));
-
         /// @dev Add a circle to the gradient that has the gradient the fill.
-        svg = string.concat(
-            svg,
+        $svg = string.concat(
+            $svg,
+            gradient($id),
             '<circle cx="50" cy="50" r="50" fill="url(#gradient)"/>'
         );
 
         /// @dev Add the layers to the SVG.
         for (uint256 i; i < layers.length; i++) {
-            svg = string.concat(svg, layers[i]);
+            $svg = string.concat($svg, layers[i]);
         }
 
-        /// @dev Close the SVG.
-        svg = string.concat(svg, "</svg>");
+        /// @dev Encode and return the SVG in base64.
+        $svg = string.concat(
+            "data:image/svg+xml;base64,",
+            abi.encodePacked(string.concat($svg, "</svg>")).encode()
+        );
+    }
+
+    function uri(
+        uint256 $id
+    ) public view virtual returns (string memory metadata) {
+        /// @dev Build the SVG metadata.
+        metadata = svg($id);
+
+        /// @dev Build the JSON metadata.
+        metadata = string.concat(
+            '{ "name": "Orb #',
+            $id.toString(),
+            '", "description": "Orbs are a reflection of the CHANCE you are given.", "image": "',
+            metadata,
+            '", "attributes": [] }'
+        );
+
+        /// @dev Encode and return the JSON metadata in base64.
+        metadata = string.concat(
+            "data:application/json;base64,",
+            abi.encodePacked(metadata).encode()
+        );
     }
 
     /**
@@ -148,6 +171,7 @@ contract OrbRenderer is IOrbRenderer {
         /// @dev Convert the IPFS hash bytes to a string.
         string memory ipfsHashString = string(ipfsHashBytes);
 
+        /// @dev Build the IPFS URI.
         return
             string.concat(
                 "ipfs://",
