@@ -41,11 +41,9 @@ function App() {
     useEffect(() => {
         const params = new URLSearchParams();
 
-        colors
-            .filter((color) => !color.hidden)
-            .forEach((color) => {
-                params.append('color', color.hex);
-            });
+        colors.forEach((color) => {
+            params.append('color', color.hex);
+        });
 
         window.history.replaceState({}, '', `${window.location.pathname}?${params}`);
     }, [colors]);

@@ -16,36 +16,15 @@ const MintButton = ({ colors, onMint }: { colors: Color[]; onMint: () => void })
 
     // add rainbowkit
 
-    const orbAddress = '0x62180042606624f02D8A130dA8A3171e9b33894d';
-    const orbAbi = [];
-
-    const transactionArguments = [address, colors];
-
-    const transactionOverrides = {
-        gasLimit: 1000000,
-    };
-
-    const { config, isSuccess } = usePrepareContractWrite({
-        enabled: false,
-        address: orbAddress,
-        abi: orbAbi,
-        functionName: 'mint',
-        args: transactionArguments,
-        overrides: transactionOverrides,
-        onSuccess: onMint,
-    });
-
-    const { write } = useContractWrite(config);
-
     if (isConnected)
         return (
             <div>
                 <button
                     className="mint instant"
-                    onClick={() => {
-                        write?.();
-                    }}
-                    disabled={!isSuccess}
+                    // onClick={() => {
+                    //     write?.();
+                    // }}
+                    // disabled={!isSuccess}
                 >
                     Mint to {name || formattedAddress}
                 </button>
