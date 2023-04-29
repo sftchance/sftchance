@@ -52,6 +52,8 @@ function App() {
         });
     }, [colors]);
 
+    id;
+
     const onColorChange = (index: number, color: Color, key: keyof Color, value: string | number | boolean) => {
         setColors([
             ...colors.slice(0, index),
