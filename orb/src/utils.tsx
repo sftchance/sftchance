@@ -7,22 +7,15 @@ export const getRandomColor = (): string => {
 };
 
 export const getMagicWandColors = (colors: Color[]) => {
-    // Sometimes when a user changes the input the color scale will be all over the place.
-
-    // Take the colors provided and make them all fit together.
     const sortedColors = colors.sort((a, b) => a.position - b.position);
 
-    // Get the first and last color.
     const firstColor = sortedColors[0];
     const lastColor = sortedColors[sortedColors.length - 1];
 
-    // Get the color scale between the first and last color.
     const colorScale = chroma.scale([firstColor.hex, lastColor.hex]);
 
-    // Get the colors between the first and last color.
     const newColors = colorScale.colors(sortedColors.length);
 
-    // Return the new colors.
     return sortedColors.map((color, index) => {
         return {
             ...color,
@@ -104,6 +97,8 @@ export const colorMapToId = (colorMap: OnchainColorMap): number => {
 };
 
 export const colorMapFromId = (id: string): OnchainColorMap => {
+    id;
+
     const map: OnchainColorMap = {
         x: 0,
         y: 0,
