@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Color, Colors as ColorsType } from './types';
 
-import { colorMapToId, getAlgorithmicRandomColors, getMagicWandColors } from './utils';
+import { getAlgorithmicRandomColors, getMagicWandColors } from './utils';
 
 import { DEFAULT_COLORS } from './constants';
 
