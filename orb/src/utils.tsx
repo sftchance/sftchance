@@ -12,7 +12,7 @@ export const getMagicWandColors = (colors: Color[]): Color[] => {
     const firstColor = sortedColors[0];
     const lastColor = sortedColors[sortedColors.length - 1];
 
-    if (!sortedColors.every((color) => !chroma.valid(color.hex))) return [];
+    if (sortedColors.some((color) => color.invalid)) return [];
 
     const colorScale = chroma.scale([firstColor.hex, lastColor.hex]);
 

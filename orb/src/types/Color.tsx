@@ -6,4 +6,10 @@ interface Color {
     locked?: boolean | undefined;
 }
 
-export type { Color };
+interface Colors {
+    colors: Color[];
+    changes: Color[][];
+    undos: Color[][];
+}
+
+export type { Color, Colors };

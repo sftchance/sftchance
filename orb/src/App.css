@@ -14,15 +14,14 @@
 .icon-buttons {
     display: flex;
     position: relative;
-    height: 30px;
     align-items: center;
     margin: auto;
     gap: 20px;
-    margin-block: 10px;
+    margin-block: 20px;
 }
 
-.icon-buttons .icon-button.pause {
-    margin-left: auto;
+.icon-buttons .timespace {
+    margin-right: auto;
 }
 
 .icon-buttons .icon-button {
@@ -41,6 +40,11 @@
     align-items: center;
     justify-content: center;
     opacity: 0;
+    user-select: none;
+}
+
+.preview * {
+    user-select: none;
 }
 
 .image {
@@ -148,7 +152,6 @@
     display: grid;
     place-items: center;
     text-align: center;
-    user-select: none;
     border-radius: 6px;
     transition: all 0.6s ease-in-out;
     cursor: pointer;
@@ -226,8 +229,8 @@
 }
 
 .colors .color input {
-    font-size: 1rem;
-    font-weight: 600;
+    /* font-size: 1rem; */
+    font-weight: 900;
     color: rgba(255, 255, 255, 0.65);
     text-transform: uppercase;
     margin-bottom: 0px;
@@ -236,7 +239,6 @@
     cursor: pointer;
     outline: none;
     transition: all 0.2s ease-in-out;
-    user-select: none !important;
     width: 75px;
     position: relative;
     margin-inline: 10px;
@@ -419,5 +421,9 @@
     .colors .color:nth-child(7) {
         grid-column-start: auto;
         grid-column-end: span 1;
+    }
+
+    .colors .color input {
+        width: 100px;
     }
 }

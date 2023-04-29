@@ -33,7 +33,7 @@ const Color = ({
     return (
         <div
             className={`color ${color.hidden ? 'hidden' : ''}`}
-            style={{ background: color.hex }}
+            style={!color.invalid ? { backgroundColor: color.hex } : {}}
             onClick={() => {
                 navigator.clipboard.writeText(color.hex.toUpperCase());
             }}

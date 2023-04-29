@@ -1,16 +1,18 @@
 import {
     faLink,
-    faWandMagic,
+    faBezierCurve,
     faPlay,
     faPause,
     faRefresh,
     faShuffle,
     faDownload,
+    faRedo,
+    faUndo,
 } from '@fortawesome/free-solid-svg-icons';
 
 import { toPng } from 'html-to-image';
 
-import { Color } from '../../types';
+import { Colors } from '../../types';
 
 import { IconButton } from './';
 
@@ -20,17 +22,21 @@ const IconButtons = ({
     colors,
     perfect,
     onReset,
-    onPause,
     onShuffle,
+    onUndo,
+    onRedo,
+    onPause,
     onWand,
 }: {
     previewRef: React.RefObject<HTMLDivElement>;
     paused: boolean;
-    colors: Color[];
+    colors: Colors;
     perfect: boolean;
     onReset: () => void;
-    onPause: () => void;
     onShuffle: () => void;
+    onUndo: () => void;
+    onRedo: () => void;
+    onPause: () => void;
     onWand: () => void;
 }) => {
     return (
@@ -39,9 +45,23 @@ const IconButtons = ({
 
             <IconButton className="shuffle" icon={faShuffle} onClick={onShuffle} />
 
+            <div className="timespace">
+                <IconButton
+                    className={`undo ${colors.changes.length === 0 ? 'hidden-display' : ''}`}
+                    icon={faUndo}
+                    onClick={onUndo}
+                />
+
+                <IconButton
+                    className={`redo ${colors.undos.length === 0 ? 'hidden-display' : ''}`}
+                    icon={faRedo}
+                    onClick={onRedo}
+                />
+            </div>
+
             <IconButton
-                className={`wand ${perfect === true ? 'hidden-opacity' : ''}`}
-                icon={faWandMagic}
+                className={`wand ${perfect === true ? 'hidden-display' : ''}`}
+                icon={faBezierCurve}
                 onClick={onWand}
             />
 
@@ -56,7 +76,7 @@ const IconButtons = ({
                             const a = document.createElement('a');
 
                             a.href = dataUrl;
-                            a.download = `orb-${colors.map((color) => color.hex).join('-')}.png`;
+                            a.download = `orb-${colors.colors.map((color) => color.hex).join('-')}.png`;
 
                             a.click();
                         })
