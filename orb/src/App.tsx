@@ -1,3 +1,5 @@
+import chroma from 'chroma-js';
+
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Color } from './types';
@@ -15,6 +17,7 @@ const URL_COLOR_CODES = new URLSearchParams(window.location.search).getAll('colo
 const URL_COLORS = URL_COLOR_CODES.map((hex, index) => ({
     hex,
     position: DEFAULT_COLORS[index].position,
+    invalid: !chroma.valid(hex),
     hidden: false,
     locked: false,
 }));
@@ -28,33 +31,39 @@ function App() {
     const [paused, setPaused] = useState<boolean>(false);
 
     const { wandColors, perfect } = useMemo(() => {
+        const _wandColors = getMagicWandColors(colors);
+
+        const perfect = _wandColors.length == 0 || _wandColors.every((color, index) => color.hex === colors[index].hex);
+
         return {
-            wandColors: getMagicWandColors(colors),
-            perfect: colors.every((color, index) => color.hex === getMagicWandColors(colors)[index].hex),
+            wandColors: _wandColors,
+            perfect,
         };
     }, [colors]);
 
-    const id = useMemo(() => {
-        return colorMapToId({
-            x: 0,
-            y: 0,
-            speed: 0,
-            colorCount: colors.length,
-            bgTransparent: false,
-            bgScalar: 0,
-            colors: colors.map((color) => ({
-                empty: false,
-                domain: 0,
-                r: parseInt(color.hex.slice(1, 3), 16),
-                g: parseInt(color.hex.slice(3, 5), 16),
-                b: parseInt(color.hex.slice(5, 7), 16),
-            })),
-        });
-    }, [colors]);
+    // const id = useMemo(() => {
+    //     return colorMapToId({
+    //         x: 0,
+    //         y: 0,
+    //         speed: 0,
+    //         colorCount: colors.length,
+    //         bgTransparent: false,
+    //         bgScalar: 0,
+    //         colors: colors.map((color) => ({
+    //             empty: false,
+    //             domain: 0,
+    //             r: 0,
+    //             g: 0,
+    //             b: 0,
+    //         })),
+    //     });
+    // }, [colors]);
 
-    id;
+    // id;
 
     const onColorChange = (index: number, color: Color, key: keyof Color, value: string | number | boolean) => {
+        if (key === 'hex') color.invalid = !chroma.valid(color.hex);
+
         setColors([
             ...colors.slice(0, index),
             {

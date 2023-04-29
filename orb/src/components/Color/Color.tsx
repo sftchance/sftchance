@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faLock, faLockOpen } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faLock, faLockOpen, faWarning } from '@fortawesome/free-solid-svg-icons';
 
 import { Color as ColorType } from '../../types';
 
@@ -39,6 +39,10 @@ const Color = ({
             }}
         >
             <div className={isDark(color.hex) ? 'light' : 'dark'}>
+                <button className={`invalid ${!color.invalid ? 'hidden-opacity' : ''}`} disabled>
+                    <FontAwesomeIcon icon={faWarning} />
+                </button>
+
                 <input
                     type="text"
                     value={color.hex}

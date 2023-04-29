@@ -39,7 +39,11 @@ const IconButtons = ({
 
             <IconButton className="shuffle" icon={faShuffle} onClick={onShuffle} />
 
-            {!perfect && <IconButton className="wand" icon={faWandMagic} onClick={onWand} />}
+            <IconButton
+                className={`wand ${perfect === true ? 'hidden-opacity' : ''}`}
+                icon={faWandMagic}
+                onClick={onWand}
+            />
 
             <IconButton className="pause" icon={paused ? faPlay : faPause} onClick={onPause} />
 

@@ -1,3 +1,5 @@
+import chroma from 'chroma-js';
+
 import { Color } from '../../types';
 
 import { orbTexture, orbNoise } from '../../assets';
@@ -13,7 +15,7 @@ const Preview = ({
 }) => {
     const orbStyle = {
         background: `radial-gradient(95.24% 100.5% at 2.04% 40.07%, ${colors
-            .filter((color) => !color.hidden)
+            .filter((color) => !color.hidden && !color.invalid)
             .map((color) => {
                 return `${color.hex} ${color.position}%`;
             })
