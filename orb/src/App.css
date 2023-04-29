@@ -1,50 +1,45 @@
-.copy,
-.reset,
-.pause,
-.shuffle,
-.save,
-.wand {
+.orb {
+    display: grid;
+    height: 100vh;
+    width: 100vw;
+}
+
+.orb-container {
+    max-width: 768px;
+    width: calc(100% - 40px);
+    margin: auto;
+    position: relative;
+}
+
+.icon-buttons {
+    display: flex;
+    position: relative;
+    height: 30px;
+    align-items: center;
+    margin: auto;
+    gap: 20px;
+}
+
+.icon-buttons .icon-button:nth-child(4) {
+    margin-left: auto;
+}
+
+.icon-buttons .icon-button {
     background: transparent;
     border: none;
     cursor: pointer;
-    position: absolute;
-    right: 5%;
-    top: 5%;
-    z-index: 10;
-}
-
-.shuffle {
-    left: calc(5% + 50px);
-    right: initial;
-}
-
-.wand {
-    left: calc(5% + 106px);
-    right: initial;
-}
-
-.save {
-    right: calc(5% + 50px);
-}
-
-.reset {
-    right: initial;
-    left: 5%;
-}
-
-.pause {
-    right: initial;
-    right: calc(5% + 106px);
+    z-index: 3;
 }
 
 .preview {
-    width: 100vw;
-    height: 100%;
-    padding-block: 40px;
+    display: grid;
     transition: all 0.2s ease-in-out;
-    opacity: 0;
     transform: translateY(20px);
     animation: fadeInUp 1.1s ease-in-out 0.2s forwards;
+    padding-block: 40px;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
 }
 
 .image {
@@ -53,7 +48,6 @@
     width: 350px;
     display: grid;
     position: relative;
-    margin: auto;
     animation: float 5s ease-in-out infinite;
     background: #000;
 }
@@ -137,9 +131,11 @@
 
 .colors {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
     gap: 10px;
-    margin-inline: 20px;
 }
 
 .colors .color,
@@ -266,7 +262,7 @@
 .colors .color button.hide {
     position: relative;
     z-index: 11;
-    top: -2px;
+    top: -1px;
 }
 
 .colors .color button svg {

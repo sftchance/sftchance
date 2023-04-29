@@ -34,7 +34,7 @@ const IconButtons = ({
     onWand: () => void;
 }) => {
     return (
-        <>
+        <div className="icon-buttons">
             <IconButton className="reset" icon={faRefresh} onClick={onReset} />
 
             <IconButton className="shuffle" icon={faShuffle} onClick={onShuffle} />
@@ -42,14 +42,6 @@ const IconButtons = ({
             {!perfect && <IconButton className="wand" icon={faWandMagic} onClick={onWand} />}
 
             <IconButton className="pause" icon={paused ? faPlay : faPause} onClick={onPause} />
-
-            <IconButton
-                className="copy"
-                icon={faLink}
-                onClick={() => {
-                    navigator.clipboard.writeText(window.location.href);
-                }}
-            />
 
             <IconButton
                 className="save"
@@ -69,7 +61,15 @@ const IconButtons = ({
                         });
                 }}
             />
-        </>
+
+            <IconButton
+                className="copy"
+                icon={faLink}
+                onClick={() => {
+                    navigator.clipboard.writeText(window.location.href);
+                }}
+            />
+        </div>
     );
 };
 

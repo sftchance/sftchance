@@ -21,8 +21,8 @@ const Preview = ({
     };
 
     return (
-        <div className={`preview ${paused ? 'paused' : ''}`} ref={previewRef}>
-            <div className="image">
+        <div className={`preview ${paused ? 'paused' : ''}`}>
+            <div className="image" ref={previewRef}>
                 <div className="orb blurred" style={orbStyle}></div>
                 <img className="texture blurred" src={orbTexture} alt="texture" />
                 <img className="noise blurred" src={orbNoise} alt="noise" />

@@ -17,6 +17,7 @@ interface IOrb {
         uint32 totalSupply;
         /// @dev When calculated, `closure` is based upon `1672534861` as the Genesis Epoch.
         uint32 closure;
+        /// @dev The address that funds are sent to upon minting.
         address payable vault;
     }
 

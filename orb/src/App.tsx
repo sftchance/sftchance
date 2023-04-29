@@ -74,43 +74,44 @@ function App() {
     }, [colors]);
 
     return (
-        <>
-            <IconButtons
-                previewRef={previewRef}
-                paused={paused}
-                colors={colors}
-                perfect={perfect}
-                onReset={() => {
-                    setColors(DEFAULT_COLORS);
-                }}
-                onPause={() => {
-                    setPaused((paused) => !paused);
-                }}
-                onShuffle={() => {
-                    setColors((colors) => getMagicWandColors(getAlgorithmicRandomColors(colors)));
-                }}
-                onWand={() => {
-                    setColors(wandColors);
-                }}
-            />
-            <Preview previewRef={previewRef} colors={colors} paused={paused} />
+        <div className="orb">
+            <div className="orb-container">
+                <IconButtons
+                    previewRef={previewRef}
+                    paused={paused}
+                    colors={colors}
+                    perfect={perfect}
+                    onReset={() => {
+                        setColors(DEFAULT_COLORS);
+                    }}
+                    onPause={() => {
+                        setPaused((paused) => !paused);
+                    }}
+                    onShuffle={() => {
+                        setColors((colors) => getMagicWandColors(getAlgorithmicRandomColors(colors)));
+                    }}
+                    onWand={() => {
+                        setColors(wandColors);
+                    }}
+                />
 
-            <p>{id}</p>
+                <Preview previewRef={previewRef} colors={colors} paused={paused} />
 
-            <Colors
-                colors={colors}
-                onChange={(index, e) => {
-                    onColorChange(index, colors[index], 'hex', e.target.value);
-                }}
-                onHide={(index) => {
-                    onColorChange(index, colors[index], 'hidden', !colors[index].hidden);
-                }}
-                onToggle={(index) => {
-                    onColorChange(index, colors[index], 'locked', !colors[index].locked);
-                }}
-            />
-            {/* <MintButton colors={colors} /> */}
-        </>
+                <Colors
+                    colors={colors}
+                    onChange={(index, e) => {
+                        onColorChange(index, colors[index], 'hex', e.target.value);
+                    }}
+                    onHide={(index) => {
+                        onColorChange(index, colors[index], 'hidden', !colors[index].hidden);
+                    }}
+                    onToggle={(index) => {
+                        onColorChange(index, colors[index], 'locked', !colors[index].locked);
+                    }}
+                />
+                {/* <MintButton colors={colors} /> */}
+            </div>
+        </div>
     );
 }
 
