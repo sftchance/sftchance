@@ -161,7 +161,9 @@ contract OrbRenderer is IOrbRenderer {
             $id.toString(),
             '", "description": "Orbs are a reflection of the CHANCE you are given.", "image": "',
             metadata,
-            '", "attributes": [] }'
+            '", "attributes": [], external_url": "',
+            uriIPFS($id),
+            '" }'
         );
 
         /// @dev Encode and return the JSON metadata in base64.

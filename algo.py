@@ -20,7 +20,6 @@ dna  (224 bits) = | color (32 bits) | color (32 bits) | color (32 bits)
 
 id   (256 bits) = | top (32 bits) | dna (224 bits) |
 
-
 where (in raw value)    0 <= color_count <= 7
                     and 0 <= bg_scalar <= 255
                     and 0 <= domain <= 100
@@ -36,6 +35,7 @@ where (in raw value)    0 <= color_count <= 7
 """
 
 Color = Dict[str, int]
+Colors = List[Color]
 
 class ColorMap:
     def __init__(
@@ -46,7 +46,7 @@ class ColorMap:
         color_count: int,
         bg_transparent: bool,
         bg_scalar: int,
-        colors: List[Color]
+        colors: Colors
     ):
         self.x = x
         self.y = y
@@ -92,73 +92,91 @@ class ColorMap:
                 raise Exception('Invalid domain order')
             
             prev_domain = colors[i]['domain']
-
+        
         self.colors = colors
 
-def get_id(color_map: ColorMap) -> int:
-    id = 0
+    def id(self) -> int:
+        id = 0
 
-    for i in range(len(color_map.colors)):
-        map_color = color_map.colors[i]
+        for i in range(len(self.colors)):
+            map_color = self.colors[i]
 
-        color = 0
+            color = 0
 
-        color |= map_color['b'] << 0
-        color |= map_color['g'] << 8
-        color |= map_color['r'] << 16
-        
-        color |= map_color['domain'] << 24
-        
-        color |= (1 if not map_color['empty'] else 0) << 31
+            color |= map_color['b'] << 0
+            color |= map_color['g'] << 8
+            color |= map_color['r'] << 16
+            
+            color |= map_color['domain'] << 24
+            
+            color |= (1 if not map_color['empty'] else 0) << 31
 
-        id |= color << (i * 32)
+            id |= color << (i * 32)
 
-    if id == 0:
-        raise Exception('Invalid color map')
+        if id == 0:
+            raise Exception('Invalid color map')
 
-    top = color_map.y
-    top |= color_map.x << 9
-    top |= color_map.speed << 18
-    top |= color_map.color_count << 20
-    top |= (1 if color_map.bg_transparent else 0) << 23
-    top |= color_map.bg_scalar << 24
+        top = self.y
+        top |= self.x << 9
+        top |= self.speed << 18
+        top |= self.color_count << 20
+        top |= (1 if self.bg_transparent else 0) << 23
+        top |= self.bg_scalar << 24
 
-    id |= (top << 224)
+        id |= (top << 224)
 
-    return id
+        return id
+    
+class ColorId:
+    def __init__(self: object, id: int) -> None:
+        self.id = id
 
-def get_map(id: int) -> ColorMap:
-    colors = []
+    def map(self: object) -> ColorMap:
+        colors: Colors = []
 
-    for i in range(7):
-        color = {}
+        for i in range(7):
+            color = {}
 
-        color['empty'] = ((id >> (i * 32 + 31)) & 0x1) == 0
-        color['domain'] = (id >> (i * 32 + 24)) & 0x7f
-        color['r'] = (id >> (i * 32 + 16)) & 0xff
-        color['g'] = (id >> (i * 32 + 8)) & 0xff
-        color['b'] = (id >> (i * 32 + 0)) & 0xff
+            color['empty'] = ((self.id >> (i * 32 + 31)) & 0x1) == 0
+            color['domain'] = (self.id >> (i * 32 + 24)) & 0x7f
+            color['r'] = (self.id >> (i * 32 + 16)) & 0xff
+            color['g'] = (self.id >> (i * 32 + 8)) & 0xff
+            color['b'] = (self.id >> (i * 32 + 0)) & 0xff
 
-        colors.append(color)
+            colors.append(color)
 
-    color_offset = 224
+        color_offset = 224
 
-    x = (id >> color_offset) & 0x1ff
-    y = (id >> (color_offset + 9)) & 0x1ff
-    speed = (id >> (color_offset + 18)) & 0x3
-    color_count = (id >> (color_offset + 20)) & 0x7
-    bg_transparent = ((id >> (color_offset + 23)) & 0x1) == 1
-    bg_scalar = (id >> (color_offset + 24)) & 0xff
+        x = (self.id >> color_offset) & 0x1ff
+        y = (self.id >> (color_offset + 9)) & 0x1ff
 
-    return ColorMap(
-        x=x,
-        y=y,
-        speed=speed,
-        color_count=color_count,
-        bg_transparent=bg_transparent,
-        bg_scalar=bg_scalar,
-        colors=colors
-    )
+        speed = (self.id >> (color_offset + 18)) & 0x3
+        color_count = (self.id >> (color_offset + 20)) & 0x7
+
+        bg_transparent = ((self.id >> (color_offset + 23)) & 0x1) == 1
+        bg_scalar = (self.id >> (color_offset + 24)) & 0xff
+
+        return ColorMap(
+            x=x,
+            y=y,
+            speed=speed,
+            color_count=color_count,
+            bg_transparent=bg_transparent,
+            bg_scalar=bg_scalar,
+            colors=colors
+        )
+
+class ColorProvenance:
+    def __init__(self: object, max: int, power: int, price: int, supply: int, closure: int, vault: int) -> None:
+        self.max = max
+        self.power = power
+
+        self.max_p = (self.max >> 6) | self.power
+
+        self.price = price
+        self.supply = supply
+        self.closure = closure
+        self.vault = vault
 
 map = ColorMap(
     x=360,
@@ -178,16 +196,15 @@ map = ColorMap(
     ],
 )
 
-id = get_id(map)
+map_: ColorMap = ColorId(map.id()).map()
 
-map_ = get_map(id)
+assert (
+        map.x == map_.x
+    and map.y == map_.y
+    and map.speed == map_.speed
+    and map.color_count == map_.color_count
+    and map.bg_transparent == map_.bg_transparent
+    and map.bg_scalar == map_.bg_scalar
+    and map.colors == map_.colors)
 
-assert map.x == map_.x
-assert map.y == map_.y
-assert map.speed == map_.speed
-assert map.color_count == map_.color_count
-assert map.bg_transparent == map_.bg_transparent
-assert map.bg_scalar == map_.bg_scalar
-assert map.colors == map_.colors
-
-print(id)
+print(map.id())

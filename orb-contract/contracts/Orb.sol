@@ -11,6 +11,7 @@ import {OrbRenderer} from "./OrbRenderer.sol";
 
 /// @dev Helper libraries.
 import {LibColor} from "./utils/LibColor.sol";
+import {LibProvenance} from "./utils/LibProvenance.sol";
 
 /**
  * @title Orb: The identity representation of a CHANCE reflected in an abstract Orb form.
@@ -28,6 +29,7 @@ import {LibColor} from "./utils/LibColor.sol";
  */
 contract Orb is IOrb, ERC1155 {
     using LibColor for uint32;
+    using LibProvenance for Provenance;
 
     /// @dev The address of the deployer of the contract.
     address payable public deployer;
@@ -132,9 +134,6 @@ contract Orb is IOrb, ERC1155 {
             balanceOf(msg.sender, $id) > provenanceRef.totalSupply / 2,
             "Orb::load: caller does not hold Orb"
         );
-
-        /// @dev Set `uri` to use the IPFS hash and token ID for the metadata.
-        provenanceRef.useIPFS = $provenance.useIPFS;
 
         /// @dev Set the max supply of the Orb.
         provenanceRef.maxSupply = $provenance.maxSupply;
@@ -278,11 +277,6 @@ contract Orb is IOrb, ERC1155 {
     function uri(
         uint256 $id
     ) public view override onlyValidID($id) returns (string memory $uri) {
-        /// @dev Guard against the Onchain Renderer being used when disabled.
-        if (provenance[$id].useIPFS > 0)
-            /// @dev Return the built URI.
-            $uri = renderer.uriIPFS($id);
-
         /// @dev Render the Orb using the onchain engine.
         $uri = renderer.uri($id);
     }

@@ -4,12 +4,19 @@ pragma solidity ^0.8.18;
 
 interface IOrb {
     /// @dev The provenance metadata of an Orb.
+    /// @notice With an address in the same slot, we only have 96 bits left for the rest of the data.
     struct Provenance {
-        uint8 useIPFS;
-        uint32 maxSupply;
+        /// @notice  First 6 bits represents the power of the next 10.
+        /// @notice To set it to `uint32.max` supply should be set to the value of `2^32`
+        /// @notice Thanks to the wizardry of binary, 2^32 == 4,294,967,296 == uint32 max.
+        /// @dev | supply (2 bits) | power (6 bits) |
+        uint8 maxSupply;
+        /// @dev The price of the Orb in wei.
+        uint24 price;
+        /// @dev The total supply of the Orb minted at any given time.
         uint32 totalSupply;
-        uint48 closure;
-        uint136 price;
+        /// @dev When calculated, `closure` is based upon `1672534861` as the Genesis Epoch.
+        uint32 closure;
         address payable vault;
     }
 
