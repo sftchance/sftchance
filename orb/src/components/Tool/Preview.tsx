@@ -1,5 +1,3 @@
-import chroma from 'chroma-js';
-
 import { Color } from '../../types';
 
 import { orbTexture, orbNoise } from '../../assets';
