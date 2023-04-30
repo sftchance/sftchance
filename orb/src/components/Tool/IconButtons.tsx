@@ -33,7 +33,9 @@ const IconButtons = ({
                 const a = document.createElement('a');
 
                 a.href = dataUrl;
-                a.download = `orb-${colors.colors.map((color) => color.hex).join('-')}.png`;
+                a.download = `orb-${transparent ? 'transparent' : light ? 'light' : 'dark'}-${colors.colors
+                    .map((color) => color.hex)
+                    .join('-')}.png`;
 
                 a.click();
 
