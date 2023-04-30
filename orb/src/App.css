@@ -1,7 +1,24 @@
 .orb {
     display: grid;
-    height: 100vh;
+    height: 100%;
     width: 100%;
+    transition: all 0.2s ease-in-out;
+}
+
+.orb.light,
+.orb.light .image {
+    background: #fff;
+}
+
+.orb .scale-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: transparent;
+    z-index: 4;
+    cursor: pointer;
 }
 
 .orb-container {
@@ -22,6 +39,16 @@
 
 .icon-buttons .timespace {
     margin-right: auto;
+    gap: 20px;
+    display: flex;
+}
+
+.icon-buttons .icon-button.light {
+    margin-left: auto;
+}
+
+.icon-buttons .icon-button.light svg {
+    transform: rotate(223deg);
 }
 
 .icon-buttons .icon-button {
@@ -45,10 +72,10 @@
 
 .preview * {
     user-select: none;
+    transition: all 0.2s ease-in-out;
 }
 
 .image {
-    background: transparent;
     height: 350px;
     width: 350px;
     display: grid;
@@ -57,7 +84,9 @@
     background: #000;
 }
 
-.preview.paused .image {
+.preview.paused .image,
+.preview.paused .image .blurred,
+.no-animation {
     animation-play-state: paused;
 }
 
@@ -114,6 +143,7 @@
     -moz-filter: blur(10px);
     -ms-filter: blur(10px);
     -o-filter: blur(10px);
+    animation: blur 5s ease-in-out infinite;
 }
 
 .image .blur {
@@ -142,6 +172,7 @@
     justify-content: center;
     gap: 10px;
     margin-bottom: 20px;
+    position: relative;
 }
 
 .colors .color,
@@ -160,6 +191,7 @@
     opacity: 0;
     transform: translateY(20px);
     filter: saturate(1);
+    border: 2px solid transparent;
 }
 
 .colors .color::after {
@@ -173,7 +205,7 @@
     background-image: url('/orb-noise.png');
     background-size: cover;
     background-position: center;
-    background-size: 400px 400px;
+    background-size: 200px 200px;
     background-blend-mode: overlay;
     opacity: 0.2;
     z-index: 0;
@@ -194,6 +226,10 @@
     -moz-filter: brightness(1.05);
     -ms-filter: brightness(1.05);
     -o-filter: brightness(1.05);
+}
+
+.colors .color:hover button {
+    animation: fadeInUp 0.2s ease-in-out 0.2s forwards;
 }
 
 .colors .color.hidden {
@@ -223,13 +259,104 @@
 }
 
 .colors .color div {
-    width: 200px;
+    width: 350px;
     display: inline-block;
     user-select: none;
 }
 
+.colors .color div.scale-container.visible::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    border-radius: 6px;
+    background-color: #fff;
+    background-size: cover;
+    background-position: center;
+    background-size: 200px 200px;
+    opacity: 0.2;
+    z-index: 5;
+}
+
+.colors .color div.scale-container.visible .segment::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-image: url('/orb-noise.png');
+    background-size: cover;
+    background-position: center;
+    background-size: 200px 200px;
+    opacity: 0.2;
+    z-index: 6;
+    mix-blend-mode: overlay;
+}
+
+.colors .color div.scale-container {
+    height: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    border-radius: 6px;
+}
+
+.colors .color div.scale-container.visible {
+    z-index: 6;
+}
+
+.colors .color div.scale-container .segment {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 7;
+    display: none;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    border: none;
+    outline: none;
+}
+
+.colors .color div.scale-container .segment:first-of-type,
+.colors .color div.scale-container .segment:first-of-type::before,
+.colors .color div.scale-container .segment:first-of-type::after {
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+}
+
+.colors .color div.scale-container .segment:last-of-type,
+.colors .color div.scale-container .segment:last-of-type::before,
+.colors .color div.scale-container .segment:last-of-type::after {
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+.colors .color div.scale-container.visible .segment {
+    display: block;
+}
+
+.colors .color div.scale-container .segment:hover {
+    filter: brightness(1.1);
+    -webkit-filter: brightness(1.1);
+    -moz-filter: brightness(1.1);
+    -ms-filter: brightness(1.1);
+    -o-filter: brightness(1.1);
+}
+
 .colors .color input {
-    /* font-size: 1rem; */
     font-weight: 900;
     color: rgba(255, 255, 255, 0.65);
     text-transform: uppercase;
@@ -261,12 +388,29 @@
     border: none;
     cursor: pointer;
     position: relative;
+    opacity: 0;
+    transition: all 0.2s ease-in-out;
+    animation: fadeOutDown 0.2s ease-in-out forwards;
+    width: 30px;
 }
 
+.colors .color button.hiding {
+    animation: fadeOutDown 0.2s ease-in-out forwards !important;
+}
+
+.colors .color button.visible {
+    animation: fadeInUp 0.2s ease-in-out forwards !important;
+}
+
+.colors .color button.scale,
 .colors .color button.toggle,
-.colors .color button.hide {
+.colors .color button.invalid {
+    margin-right: 10px;
+}
+
+.colors .color button {
     position: relative;
-    z-index: 11;
+    z-index: 2;
     top: -1px;
 }
 
@@ -389,6 +533,17 @@
     }
 }
 
+@keyframes fadeOutDown {
+    0% {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+}
+
 @keyframes float {
     0% {
         transform: translateY(0px);
@@ -401,6 +556,30 @@
     }
     100% {
         transform: translateY(0px);
+    }
+}
+
+@keyframes blur {
+    0% {
+        filter: blur(10px);
+        -webkit-filter: blur(10px);
+        -moz-filter: blur(10px);
+        -ms-filter: blur(10px);
+        -o-filter: blur(10px);
+    }
+    50% {
+        filter: blur(40px);
+        -webkit-filter: blur(40px);
+        -moz-filter: blur(40px);
+        -ms-filter: blur(40px);
+        -o-filter: blur(40px);
+    }
+    100% {
+        filter: blur(10px);
+        -webkit-filter: blur(10px);
+        -moz-filter: blur(10px);
+        -ms-filter: blur(10px);
+        -o-filter: blur(10px);
     }
 }
 
@@ -421,9 +600,5 @@
     .colors .color:nth-child(7) {
         grid-column-start: auto;
         grid-column-end: span 1;
-    }
-
-    .colors .color input {
-        width: 100px;
     }
 }

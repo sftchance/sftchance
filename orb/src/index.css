@@ -43,7 +43,8 @@ html {
 svg {
     display: block;
     color: rgba(255, 255, 255, 0.5);
-    transition: all 0.3s ease-in-out;
+    transition: all 0.2s ease-in-out;
+    min-width: 18px;
 }
 
 svg path {
@@ -64,11 +65,39 @@ svg:active path {
     transform: scale(0.98);
 }
 
+.orb.light svg {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.orb.light svg:hover path {
+    fill: rgba(0, 0, 0, 0.87);
+    box-shadow: 0 0 12px 24px rgba(0, 0, 0, 0.87);
+}
+
+.orb.light svg:focus path,
+.orb.light svg:active path {
+    fill: rgba(0, 0, 0, 1);
+    box-shadow: 0 0 12px 24px rgba(0, 0, 0, 0.87);
+}
+
 .hidden-display {
     display: none;
+    animation: fadeOutDown 0.2s ease-in-out forwards;
 }
 
 .hidden-opacity,
 .hidden-opacity * {
     opacity: 0;
+    animation: fadeOutDown 0.2s ease-in-out forwards;
+}
+
+.transparent {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+.no-animation {
+    transition: none !important;
+    animation: none !important;
 }

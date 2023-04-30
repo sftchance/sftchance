@@ -1,2 +1,2 @@
 export { Color, Colors } from './Color';
-export { IconButton, IconButtons, MintButton, Preview } from './Tool';
+export { FooterIconButtons, IconButton, IconButtons, MintButton, Preview } from './Tool';

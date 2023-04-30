@@ -1,14 +1,16 @@
 import chroma from 'chroma-js';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Color, Colors as ColorsType } from './types';
 
-import { getAlgorithmicRandomColors, getMagicWandColors } from './utils';
-
 import { DEFAULT_COLORS } from './constants';
 
-import { Colors, IconButtons, Preview } from './components';
+import { getAlgorithmicRandomColors, getMagicWandColors } from './utils';
+
+import { useWand } from './hooks';
+
+import { Colors, FooterIconButtons, IconButtons, Preview } from './components';
 
 import './App.css';
 
@@ -33,26 +35,12 @@ function App() {
         undos: [],
     });
 
+    const [scaled, setScaled] = useState<boolean[]>(colors.colors.map(() => false));
+
     const [paused, setPaused] = useState<boolean>(false);
+    const [light, setLight] = useState<boolean>(false);
 
-    const {
-        wandColors,
-        perfect,
-    }: {
-        wandColors: Color[];
-        perfect: boolean;
-    } = useMemo(() => {
-        const _wandColors = getMagicWandColors(colors.colors);
-
-        const empty = _wandColors.length == 0;
-
-        const perfect = empty || _wandColors.every((color, index) => color.hex === colors.colors[index].hex);
-
-        return {
-            wandColors: perfect ? colors.colors : _wandColors,
-            perfect,
-        };
-    }, [colors]);
+    const { colors: wandColors, perfect } = useWand({ colors: colors.colors });
 
     // const id = useMemo(() => {
     //     return colorMapToId({
@@ -95,26 +83,12 @@ function App() {
         });
     };
 
-    const onUndo = () => {
-        if (colors.changes.length === 0) return;
-
-        setColors((colors) => {
+    const onColorsChange = (colors: Color[]) => {
+        setColors((prevColors) => {
             return {
-                colors: colors.changes[colors.changes.length - 1],
-                changes: colors.changes.slice(0, colors.changes.length - 1),
-                undos: [...colors.undos, colors.colors],
-            };
-        });
-    };
-
-    const onRedo = () => {
-        if (colors.undos.length === 0) return;
-
-        setColors((colors) => {
-            return {
-                colors: colors.undos[colors.undos.length - 1],
-                changes: [...colors.changes, colors.colors],
-                undos: colors.undos.slice(0, colors.undos.length - 1),
+                colors,
+                changes: [...prevColors.changes, prevColors.colors],
+                undos: [],
             };
         });
     };
@@ -130,39 +104,65 @@ function App() {
     }, [colors]);
 
     return (
-        <div className="orb">
+        <div className={`orb ${light ? 'light' : 'dark'}`}>
+            {scaled.some((s) => s) && (
+                <div className="scale-overlay" onClick={() => setScaled((scaled) => scaled.map(() => false))} />
+            )}
+
             <div className="orb-container">
                 <IconButtons
                     previewRef={previewRef}
                     paused={paused}
                     colors={colors}
-                    perfect={perfect}
-                    onReset={() => {
+                    onUndo={() => {
+                        if (colors.changes.length === 0) return;
+
                         setColors((colors) => {
-                            return { ...colors, colors: DEFAULT_COLORS };
+                            return {
+                                colors: colors.changes[colors.changes.length - 1],
+                                changes: colors.changes.slice(0, colors.changes.length - 1),
+                                undos: [...colors.undos, colors.colors],
+                            };
                         });
                     }}
-                    onShuffle={() => {
+                    onRedo={() => {
+                        if (colors.undos.length === 0) return;
+
                         setColors((colors) => {
-                            return { ...colors, colors: getAlgorithmicRandomColors(colors.colors) };
+                            return {
+                                colors: colors.undos[colors.undos.length - 1],
+                                changes: [...colors.changes, colors.colors],
+                                undos: colors.undos.slice(0, colors.undos.length - 1),
+                            };
                         });
                     }}
-                    onUndo={onUndo}
-                    onRedo={onRedo}
                     onPause={() => {
                         setPaused((paused) => !paused);
-                    }}
-                    onWand={() => {
-                        setColors((colors) => {
-                            return { ...colors, colors: wandColors };
-                        });
                     }}
                 />
 
                 <Preview previewRef={previewRef} colors={colors.colors} paused={paused} />
 
+                <FooterIconButtons
+                    perfect={perfect}
+                    light={light}
+                    onReset={() => {
+                        onColorsChange(DEFAULT_COLORS);
+                    }}
+                    onShuffle={() => {
+                        onColorsChange(getMagicWandColors(getAlgorithmicRandomColors(colors.colors)));
+                    }}
+                    onWand={() => {
+                        onColorsChange(wandColors);
+                    }}
+                    onLight={() => {
+                        setLight((light) => !light);
+                    }}
+                />
+
                 <Colors
                     colors={colors.colors}
+                    scaled={scaled}
                     onChange={(index, e) => {
                         onColorChange(index, colors.colors[index], 'hex', e.target.value);
                     }}
@@ -172,7 +172,17 @@ function App() {
                     onToggle={(index) => {
                         onColorChange(index, colors.colors[index], 'locked', !colors.colors[index].locked);
                     }}
+                    onScaled={(index) => {
+                        setScaled((scaled) => {
+                            const _scaled = [...scaled];
+
+                            _scaled[index] = !_scaled[index];
+
+                            return _scaled;
+                        });
+                    }}
                 />
+
                 {/* <MintButton colors={colors} /> */}
             </div>
         </div>

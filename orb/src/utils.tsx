@@ -74,7 +74,7 @@ export const getRandomColors = (
             if (chroma(color.hex).luminance() < 0.1 || chroma(color.hex).luminance() > 0.9) {
                 return {
                     ...color,
-                    hex: chroma(color.hex).set('lch.l', '70%').hex(),
+                    hex: chroma(color.hex).set('lch.l', '90%').hex(),
                 } as Color;
             }
 
