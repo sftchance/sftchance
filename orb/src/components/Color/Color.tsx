@@ -117,7 +117,13 @@ const Color = ({
                     type="text"
                     value={color.hex}
                     onChange={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+
                         onChange(index, e);
+                    }}
+                    onClick={(e) => {
+                        e.stopPropagation();
                     }}
                 />
 
