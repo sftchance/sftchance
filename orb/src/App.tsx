@@ -112,6 +112,7 @@ function App() {
             <div className="orb-container">
                 <IconButtons
                     previewRef={previewRef}
+                    light={light}
                     paused={paused}
                     colors={colors}
                     onUndo={() => {

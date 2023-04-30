@@ -81,7 +81,6 @@
     display: grid;
     position: relative;
     animation: float 5s ease-in-out infinite;
-    background: #000;
 }
 
 .preview.paused .image,

@@ -8,6 +8,7 @@ import { IconButton } from './';
 
 const IconButtons = ({
     previewRef,
+    light,
     paused,
     colors,
     onUndo,
@@ -15,6 +16,7 @@ const IconButtons = ({
     onPause,
 }: {
     previewRef: React.RefObject<HTMLDivElement>;
+    light: boolean;
     paused: boolean;
     colors: Colors;
     onUndo: () => void;
@@ -22,8 +24,9 @@ const IconButtons = ({
     onPause: () => void;
 }) => {
     const onSave = ({ transparent }: { transparent: boolean }) => {
-        if (transparent === false) previewRef.current?.style.setProperty('background-color', 'black');
         previewRef.current?.style.setProperty('animation', 'none');
+        previewRef.current?.style.setProperty('transition', 'none');
+        previewRef.current?.style.setProperty('background', transparent ? 'transparent' : light ? '#fff' : '#000');
 
         toPng(previewRef.current as HTMLElement)
             .then((dataUrl) => {
@@ -34,8 +37,9 @@ const IconButtons = ({
 
                 a.click();
 
-                previewRef.current?.style.setProperty('background-color', 'transparent');
                 previewRef.current?.style.setProperty('animation', 'float 5s ease-in-out infinite');
+                previewRef.current?.style.setProperty('transition', 'all 0.3s ease-in-out');
+                previewRef.current?.style.setProperty('background', 'transparent');
             })
             .catch((error) => {
                 console.error('oops, something went wrong!', error);
