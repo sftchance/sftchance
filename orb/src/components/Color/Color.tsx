@@ -1,5 +1,3 @@
-import chroma from 'chroma-js';
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faClose,
@@ -11,59 +9,16 @@ import {
     faWarning,
 } from '@fortawesome/free-solid-svg-icons';
 
-import { Color as ColorType } from '../../types';
+import { ColorProps } from '../../types';
 
-const isDark = (hex: string, threshold = 0.3): boolean => {
-    hex = hex.replace('#', '');
+import { getScaleColors, isDark } from '../../utils';
 
-    const int = parseInt(hex, 16);
-
-    const r = (int >> 16) & 255;
-    const g = (int >> 8) & 255;
-    const b = int & 255;
-
-    const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-
-    return luminance < threshold;
-};
-
-const getScale = (color: string): string[] => {
-    if (!chroma.valid(color)) {
-        return [];
-    }
-
-    const scale = chroma
-        .scale(['#000', color, '#fff'])
-        .mode('lch')
-        .padding([0.1, 0.1])
-        .colors(15)
-        .map((color) => chroma(color).hex());
-
-    return scale;
-};
-
-const Color = ({
-    index,
-    color,
-    scaled,
-    onChange,
-    onHide,
-    onToggle,
-    onScaled,
-}: {
-    index: number;
-    color: ColorType;
-    scaled: boolean;
-    onChange: (index: number, e: React.ChangeEvent<HTMLInputElement>) => void;
-    onHide: (index: number) => void;
-    onToggle: (index: number) => void;
-    onScaled: (index: number) => void;
-}) => {
-    const scale = getScale(color.hex);
+const Color = ({ index, color, scaled, onChange, onHide, onToggle, onScaled }: ColorProps) => {
+    const scale = getScaleColors(color.hex);
 
     return (
         <div
-            className={`color ${color.hidden ? 'hidden' : ''}`}
+            className={`color ${color.hidden ? 'hidden' : ''} ${scaled ? 'scaled' : ''}`}
             style={
                 !color.invalid
                     ? {

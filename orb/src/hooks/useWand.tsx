@@ -1,17 +1,11 @@
 import { useMemo } from 'react';
 
-import { Color } from '../types';
+import { useWandProps } from '../types';
 
 import { getMagicWandColors } from '../utils';
 
-const useWand = ({ colors }: { colors: Color[] }) => {
-    const {
-        wandColors,
-        perfect,
-    }: {
-        wandColors: Color[];
-        perfect: boolean;
-    } = useMemo(() => {
+const useWand = ({ colors }: useWandProps) => {
+    const { wandColors, perfect } = useMemo(() => {
         const _wandColors = getMagicWandColors(colors);
 
         const empty = _wandColors.length == 0;

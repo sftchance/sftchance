@@ -8,26 +8,42 @@ import { DEFAULT_COLORS } from './constants';
 
 import { getAlgorithmicRandomColors, getMagicWandColors } from './utils';
 
-import { useWand } from './hooks';
+import { useDropper, useWand } from './hooks';
 
-import { Colors, FooterIconButtons, IconButtons, Preview } from './components';
+import { Colors, Dropper, FooterIconButtons, IconButtons, Preview } from './components';
 
 import './App.css';
 
 const URL_COLOR_CODES = new URLSearchParams(window.location.search).getAll('color');
 
-const URL_COLORS = URL_COLOR_CODES.map((hex, index) => ({
-    hex,
-    position: DEFAULT_COLORS[index].position,
-    invalid: !chroma.valid(hex),
-    hidden: false,
-    locked: false,
-}));
+const URL_COLORS = URL_COLOR_CODES.slice(0, 7).map((hex, index) => {
+    return {
+        hex,
+        position: DEFAULT_COLORS[index].position,
+        invalid: !chroma.valid(hex),
+        hidden: false,
+        locked: false,
+    };
+});
 
 const INIT_COLORS = URL_COLORS.length ? URL_COLORS : DEFAULT_COLORS;
 
 function App() {
     const previewRef = useRef<HTMLDivElement>(null);
+
+    const { ref, dragging, onDrag, onDrop } = useDropper({
+        onDrop: (colors) => {
+            const imageColors = colors.map((color, index) => ({
+                hex: color,
+                position: DEFAULT_COLORS[index].position,
+                invalid: !chroma.valid(color),
+                hidden: false,
+                locked: false,
+            }));
+
+            onColorsChange(imageColors);
+        },
+    });
 
     const [colors, setColors] = useState<ColorsType>({
         colors: INIT_COLORS,
@@ -104,16 +120,18 @@ function App() {
     }, [colors]);
 
     return (
-        <div className={`orb ${light ? 'light' : 'dark'}`}>
+        <div className={`orb ${light ? 'light' : 'dark'} ${dragging ? 'dragging' : ''}`} onDragEnter={onDrag}>
             {scaled.some((s) => s) && (
                 <div className="scale-overlay" onClick={() => setScaled((scaled) => scaled.map(() => false))} />
             )}
 
+            <Dropper importRef={ref} dragging={dragging} onDrag={onDrag} onDrop={onDrop} />
+
             <div className="orb-container">
                 <IconButtons
+                    importRef={ref}
                     previewRef={previewRef}
                     light={light}
-                    paused={paused}
                     colors={colors}
                     onUndo={() => {
                         if (colors.changes.length === 0) return;
@@ -137,8 +155,8 @@ function App() {
                             };
                         });
                     }}
-                    onPause={() => {
-                        setPaused((paused) => !paused);
+                    onLight={() => {
+                        setLight((light) => !light);
                     }}
                 />
 
@@ -146,7 +164,7 @@ function App() {
 
                 <FooterIconButtons
                     perfect={perfect}
-                    light={light}
+                    paused={paused}
                     onReset={() => {
                         onColorsChange(DEFAULT_COLORS);
                     }}
@@ -156,8 +174,8 @@ function App() {
                     onWand={() => {
                         onColorsChange(wandColors);
                     }}
-                    onLight={() => {
-                        setLight((light) => !light);
+                    onPause={() => {
+                        setPaused((paused) => !paused);
                     }}
                 />
 

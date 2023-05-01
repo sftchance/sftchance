@@ -2,7 +2,8 @@
     display: grid;
     height: 100%;
     width: 100%;
-    transition: all 0.2s ease-in-out;
+    transition: background 0.2s ease-in-out;
+    background: #000;
 }
 
 .orb.light,
@@ -43,7 +44,7 @@
     display: flex;
 }
 
-.icon-buttons .icon-button.light {
+.icon-buttons .icon-button.copy {
     margin-left: auto;
 }
 
@@ -60,7 +61,6 @@
 
 .preview {
     display: grid;
-    transition: all 0.2s ease-in-out;
     transform: translateY(20px);
     animation: fadeInUp 1.1s ease-in-out 0.2s forwards;
     padding-block: 40px;
@@ -70,9 +70,8 @@
     user-select: none;
 }
 
-.preview * {
+.preview .image * {
     user-select: none;
-    transition: all 0.2s ease-in-out;
 }
 
 .image {
@@ -81,6 +80,8 @@
     display: grid;
     position: relative;
     animation: float 5s ease-in-out infinite;
+    transition: background 0.2s ease-in-out;
+    background: #000;
 }
 
 .preview.paused .image,
@@ -210,7 +211,7 @@
     z-index: 0;
 }
 
-.colors .color:hover {
+.colors .color:not(.scaled):hover {
     filter: brightness(1.1);
     -webkit-filter: brightness(1.1);
     -moz-filter: brightness(1.1);
@@ -519,6 +520,79 @@
     transition: all 0.2s ease-in-out;
     opacity: 0;
     transform: translateY(20px);
+}
+
+#form-file-upload {
+    height: 100vh;
+    width: 100vw;
+    max-width: 100%;
+    text-align: center;
+    position: relative;
+}
+
+#input-file-upload {
+    display: none;
+}
+
+#label-file-upload {
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.65);
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    -moz-backdrop-filter: blur(10px);
+    -ms-backdrop-filter: blur(10px);
+    -o-backdrop-filter: blur(10px);
+    display: none;
+}
+
+#label-file-upload div {
+    border: 1px solid #fff;
+    padding: 80px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% - 200px);
+    height: calc(100% - 200px);
+    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease-in-out;
+}
+
+#label-file-upload div h3 {
+    text-align: center;
+    text-shadow: 0px 0px 10px rgba(0, 0, 0, 0.65);
+}
+
+.orb.dragging #label-file-upload {
+    z-index: 10;
+    display: block;
+    background-color: rgba(0, 0, 0, 0.87);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    -moz-backdrop-filter: blur(20px);
+    -ms-backdrop-filter: blur(20px);
+}
+
+#drag-file-element {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 1rem;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+    z-index: 11;
 }
 
 @keyframes fadeInUp {

@@ -1,28 +1,21 @@
-import { faLink, faPlay, faPause, faDownload, faRedo, faUndo, faScissors } from '@fortawesome/free-solid-svg-icons';
+import {
+    faLink,
+    faMoon,
+    faDownload,
+    faSun,
+    faRedo,
+    faUndo,
+    faScissors,
+    faFileImport,
+} from '@fortawesome/free-solid-svg-icons';
 
 import { toPng } from 'html-to-image';
 
-import { Colors } from '../../types';
+import { IconButtonsProps } from '../../types';
 
 import { IconButton } from './';
 
-const IconButtons = ({
-    previewRef,
-    light,
-    paused,
-    colors,
-    onUndo,
-    onRedo,
-    onPause,
-}: {
-    previewRef: React.RefObject<HTMLDivElement>;
-    light: boolean;
-    paused: boolean;
-    colors: Colors;
-    onUndo: () => void;
-    onRedo: () => void;
-    onPause: () => void;
-}) => {
+const IconButtons = ({ importRef, previewRef, light, colors, onUndo, onRedo, onLight }: IconButtonsProps) => {
     const onSave = ({ transparent }: { transparent: boolean }) => {
         previewRef.current?.style.setProperty('animation', 'none');
         previewRef.current?.style.setProperty('transition', 'none');
@@ -51,7 +44,15 @@ const IconButtons = ({
     return (
         <div className="icon-buttons">
             <div className="timespace">
-                <IconButton className="pause" icon={paused ? faPlay : faPause} onClick={onPause} />
+                <IconButton className="light" icon={light ? faMoon : faSun} onClick={onLight} />
+
+                <IconButton
+                    className="import"
+                    icon={faFileImport}
+                    onClick={() => {
+                        importRef.current?.click();
+                    }}
+                />
 
                 <IconButton
                     className={`undo ${colors.changes.length === 0 ? 'hidden-display' : ''}`}
@@ -67,6 +68,14 @@ const IconButtons = ({
             </div>
 
             <IconButton
+                className="copy"
+                icon={faLink}
+                onClick={() => {
+                    navigator.clipboard.writeText(window.location.href);
+                }}
+            />
+
+            <IconButton
                 className="cut"
                 icon={faScissors}
                 onClick={() => {
@@ -79,14 +88,6 @@ const IconButtons = ({
                 icon={faDownload}
                 onClick={() => {
                     onSave({ transparent: false });
-                }}
-            />
-
-            <IconButton
-                className="copy"
-                icon={faLink}
-                onClick={() => {
-                    navigator.clipboard.writeText(window.location.href);
                 }}
             />
         </div>

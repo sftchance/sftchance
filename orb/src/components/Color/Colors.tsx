@@ -1,22 +1,8 @@
-import { Color as ColorType } from '../../types';
+import { ColorsProps } from '../../types';
 
 import { Color } from './Color';
 
-const Colors = ({
-    colors,
-    scaled,
-    onChange,
-    onHide,
-    onToggle,
-    onScaled,
-}: {
-    colors: ColorType[];
-    scaled: boolean[];
-    onChange: (index: number, e: React.ChangeEvent<HTMLInputElement>) => void;
-    onHide: (index: number) => void;
-    onToggle: (index: number) => void;
-    onScaled: (index: number) => void;
-}) => {
+const Colors = ({ colors, scaled, onChange, onHide, onToggle, onScaled }: ColorsProps) => {
     return (
         <div className="colors">
             {colors.map((color, index) => (

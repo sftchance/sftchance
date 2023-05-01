@@ -1,16 +1,8 @@
-import { Color } from '../../types';
+import { PreviewProps } from '../../types';
 
 import { orbTexture, orbNoise } from '../../assets';
 
-const Preview = ({
-    previewRef,
-    colors,
-    paused,
-}: {
-    previewRef: React.RefObject<HTMLDivElement>;
-    colors: Color[];
-    paused: boolean;
-}) => {
+const Preview = ({ previewRef, colors, paused }: PreviewProps) => {
     const orbStyle = {
         background: `radial-gradient(95.24% 100.5% at 2.04% 40.07%, ${colors
             .filter((color) => !color.hidden && !color.invalid)

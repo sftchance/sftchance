@@ -1,62 +1,23 @@
 import chroma from 'chroma-js';
 
-import { Color, OnchainColor, OnchainColorMap } from './types';
+import { Color } from './types';
+
+export const isDark = (hex: string, threshold = 0.3): boolean => {
+    hex = hex.replace('#', '');
+
+    const int = parseInt(hex, 16);
+
+    const r = (int >> 16) & 255;
+    const g = (int >> 8) & 255;
+    const b = int & 255;
+
+    const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+
+    return luminance < threshold;
+};
 
 export const getRandomColor = (): string => {
     return chroma.random().hex();
-};
-
-export const getMagicWandColors = (colors: Color[]): Color[] => {
-    const sortedColors = colors.sort((a, b) => a.position - b.position);
-
-    const firstColor = sortedColors[0];
-    const lastColor = sortedColors[sortedColors.length - 1];
-
-    if (sortedColors.some((color) => color.invalid)) return [];
-
-    const colorScale = chroma.scale([firstColor.hex, lastColor.hex]);
-
-    const newColors = colorScale.colors(sortedColors.length);
-
-    return sortedColors.map((color, index) => {
-        return {
-            ...color,
-            hex: newColors[index],
-        } as Color;
-    });
-};
-
-export const getComplementaryColors = (colors: Color[], first: string = getRandomColor()) => {
-    return getRandomColors(colors, first, chroma(first).set('hsl.h', '+180').hex());
-};
-
-export const getSplitComplementaryColors = (colors: Color[], first: string = getRandomColor()) => {
-    return getRandomColors(colors, first, chroma(first).set('hsl.h', '+150').hex());
-};
-
-export const getTriadicColors = (colors: Color[], first: string = getRandomColor()) => {
-    return getRandomColors(colors, first, chroma(first).set('hsl.h', '+120').hex());
-};
-
-export const getTetradicColors = (colors: Color[], first: string = getRandomColor()) => {
-    return getRandomColors(colors, first, chroma(first).set('hsl.h', '+90').hex());
-};
-
-export const getAlgorithmicRandomColors = (colors: Color[], first: string = getRandomColor()) => {
-    const random = Math.floor(Math.random() * 4);
-
-    switch (random) {
-        case 0:
-            return getComplementaryColors(colors, first);
-        case 1:
-            return getSplitComplementaryColors(colors, first);
-        case 2:
-            return getTriadicColors(colors, first);
-        case 3:
-            return getTetradicColors(colors, first);
-        default:
-            return getComplementaryColors(colors, first);
-    }
 };
 
 export const getRandomColors = (
@@ -92,70 +53,125 @@ export const getRandomColors = (
         });
 };
 
-export const colorMapToId = (colorMap: OnchainColorMap): number => {
-    const dna = bitpackColor(colorMap.colors);
-
-    return dna;
+export const getComplementaryColors = (colors: Color[], first: string = getRandomColor()) => {
+    return getRandomColors(colors, first, chroma(first).set('hsl.h', '+180').hex());
 };
 
-export const colorMapFromId = (id: string): OnchainColorMap => {
-    id;
-
-    const map: OnchainColorMap = {
-        x: 0,
-        y: 0,
-        speed: 0,
-        colorCount: 0,
-        bgTransparent: false,
-        bgScalar: 0,
-        colors: [],
-    };
-
-    return map;
+export const getSplitComplementaryColors = (colors: Color[], first: string = getRandomColor()) => {
+    return getRandomColors(colors, first, chroma(first).set('hsl.h', '+150').hex());
 };
 
-export const bitpackColor = (colors: OnchainColor[], color = 0) => {
-    for (let i = 0; i < colors.length; i++) {
-        const c = colors[i];
+export const getTriadicColors = (colors: Color[], first: string = getRandomColor()) => {
+    return getRandomColors(colors, first, chroma(first).set('hsl.h', '+120').hex());
+};
 
-        color |= !c.empty ? 1 : 0 << 31;
-        color |= c.domain << 30;
-        color |= c.r << 20;
-        color |= c.g << 10;
-        color |= c.b << 0;
+export const getTetradicColors = (colors: Color[], first: string = getRandomColor()) => {
+    return getRandomColors(colors, first, chroma(first).set('hsl.h', '+90').hex());
+};
 
-        if (i < colors.length - 1) {
-            color <<= 32;
+export const getAlgorithmicRandomColors = (colors: Color[], first: string = getRandomColor()) => {
+    const random = Math.floor(Math.random() * 4);
+
+    switch (random) {
+        case 0:
+            return getComplementaryColors(colors, first);
+        case 1:
+            return getSplitComplementaryColors(colors, first);
+        case 2:
+            return getTriadicColors(colors, first);
+        case 3:
+            return getTetradicColors(colors, first);
+        default:
+            return getComplementaryColors(colors, first);
+    }
+};
+
+export const getScaleColors = (color: string): string[] => {
+    if (!chroma.valid(color)) {
+        return [];
+    }
+
+    const scale = chroma
+        .scale(['#000', color, '#fff'])
+        .mode('lch')
+        .padding([0.1, 0.1])
+        .colors(15)
+        .map((color) => chroma(color).hex());
+
+    return scale;
+};
+
+export const getGradientColors = (data: string, numColors = 7): Promise<string[]> => {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.src = data;
+
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        if (!ctx) {
+            reject([]);
+            return;
         }
 
-        console.log('color', color);
-    }
+        img.onload = () => {
+            canvas.width = img.width;
+            canvas.height = img.height;
 
-    console.log(recoverColor(color, colors.length));
+            if (ctx) {
+                ctx.drawImage(img, 0, 0);
 
-    return color;
-};
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const pixels = imageData.data;
 
-export const recoverColor = (color: number, length: number, colors: OnchainColor[] = []) => {
-    for (let i = length; i > -1; i--) {
-        const c: OnchainColor = {
-            empty: false,
-            domain: 0,
-            r: 0,
-            g: 0,
-            b: 0,
+                const width = imageData.width;
+                const height = imageData.height;
+                const centerCol = Math.floor(width / 2);
+                const startY = 0;
+                const endY = height - 1;
+
+                const step = Math.round((endY - startY) / numColors);
+
+                const colors = [];
+
+                for (let y = startY; y <= endY; y += step) {
+                    const offset = (y * width + centerCol) * 4;
+                    const r = pixels[offset];
+                    const g = pixels[offset + 1];
+                    const b = pixels[offset + 2];
+
+                    const hex = chroma(r, g, b).hex();
+                    colors.push(hex);
+                }
+
+                resolve(colors.slice(0, numColors));
+            } else {
+                reject([]);
+            }
         };
 
-        c.empty = (color & (1 << 31)) !== 0;
-        c.domain = (color & (1 << 30)) !== 0 ? 1 : 0;
-        c.r = (color & (0x3ff << 20)) >> 20;
-        c.g = (color & (0x3ff << 10)) >> 10;
-        c.b = (color & (0xff << 0)) >> 0;
+        img.onerror = () => {
+            reject([]);
+        };
+    });
+};
 
-        colors.push(c);
+export const getMagicWandColors = (colors: Color[]): Color[] => {
+    const sortedColors = colors.sort((a, b) => a.position - b.position);
 
-        color >>= 32;
-    }
+    const firstColor = sortedColors[0];
+    const lastColor = sortedColors[sortedColors.length - 1];
 
-    return colors;
+    if (sortedColors.some((color) => color.invalid)) return [];
+
+    const colorScale = chroma.scale([firstColor.hex, lastColor.hex]);
+
+    const newColors = colorScale.colors(sortedColors.length);
+
+    return sortedColors.map((color, index) => {
+        return {
+            ...color,
+            hex: newColors[index],
+        } as Color;
+    });
 };
