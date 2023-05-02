@@ -76,4 +76,11 @@ interface IOrb {
      * @param $amount The amount of tokens to burn.
      */
     function burn(uint256 $id, uint32 $amount) external;
+
+    /**
+     * @notice Returns whether or not the Orb is valid.
+     * @param $id The token ID to get the provenance data of.
+     * @return Whether or not the Orb is valid.
+     */
+    function isValid(uint256 $id) external view returns (bool);
 }

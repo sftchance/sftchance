@@ -72,7 +72,6 @@ class ColorMap:
         if self.bg_scalar < 0 or self.bg_scalar > 255:
             raise Exception('Invalid bg_scalar value')
         
-
         colors_not_empty = sum([1 if not color['empty'] else 0 for color in colors])
 
         if colors_not_empty != self.color_count or self.color_count == 0:

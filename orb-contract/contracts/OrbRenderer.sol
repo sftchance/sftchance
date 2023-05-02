@@ -8,6 +8,7 @@ import {IOrbRenderer} from "./interfaces/IOrbRenderer.sol";
 /// @dev Helper libraries.
 import {Base64} from "solady/src/utils/Base64.sol";
 import {LibColor} from "./utils/LibColor.sol";
+import {LibOrb} from "./utils/LibOrb.sol";
 import {LibString} from "solady/src/utils/LibString.sol";
 
 /**
@@ -22,8 +23,8 @@ import {LibString} from "solady/src/utils/LibString.sol";
  * @notice The token ID is a 256-bit unsigned integer that is broken up into 32-bit unsigned integers
  *         summed together to create the output gradient. 
  * 
- * @notice An Orb may have up to 7 gradient stops, each represented by a 32-bit unsigned integer but 
- *         there must be at least one.
+ * @notice The definition of an Orb may have up to 7 color gradient stops while the last 32 bits of 
+ *         the token ID are reserved for supporting metadata.
  * @notice The first 24 bits of the 32-bit unsigned integer represent the color and the last 8 bits
  *         represent the domain of the gradient stop.
  *             - The color is represented as a `uint24` filled leaving 8 empty.
@@ -32,12 +33,37 @@ import {LibString} from "solady/src/utils/LibString.sol";
  *             - The color may be empty, which means the stop should not be rendered and is represented
  *               by a `1` in the final bit of the colors `uint32`.
  *
- * @notice The definition of an Orb may have up to 7 color gradient stops while the last 32 bits of 
- *         the token ID are reserved for supporting metadata.
+ * @dev Bitpacked schema definition of the Orb token ID:
+ *
+ *      pos   (18 bits) = | x (9 bits) | y (9 bits) | 
+ * 
+ *      top   (32 bits) = | bg_scalar (8 bits) | bg_transparent (1 bit) | color_count (3 bits) 
+ *                        | speed (2 bits) | pos (18 bits) |
+ * 
+ *      color (32 bits) = | empty (1 bit) | domain (7 bits) | r (8 bits) | g (8 bits) | b (8 bits) |
+ * 
+ *      dna  (224 bits) = | color (32 bits) | color (32 bits) | color (32 bits) 
+ *                        | color (32 bits) | color (32 bits) | color (32 bits) | color (32 bits) |
+ *
+ *      id   (256 bits) = | top (32 bits) | dna (224 bits) |
+ *
+ *      where (in raw value)    0 <= color_count <= 7
+ *                          and 0 <= bg_scalar <= 255
+ *                          and 0 <= domain <= 100
+ *                          and domain_{N-1} <= domain_{N}
+ *                          and 0 <= x <= 360
+ *                          and 0 <= y <= 360
+ *                          and 0 <= speed <= 3
+ *                          and 0 <= r <= 255
+ *                          and 0 <= g <= 255
+ *                          and 0 <= b <= 255
+ *                          and dna != 0 (dna is not all empty)
+ *                          and color_count == number of non-empty colors in dna
  */
 contract OrbRenderer is IOrbRenderer {
     using Base64 for bytes;
     using LibColor for uint32;
+    using LibOrb for uint32;
     using LibString for uint256;
 
     /// @dev The maximum number of gradient stops an Orb can have.
@@ -136,6 +162,7 @@ contract OrbRenderer is IOrbRenderer {
 
         /// @dev Add the layers to the SVG.
         for (uint256 i; i < layers.length; i++) {
+            /// @dev Append the single layer to the SVG that was loaded into storage.
             $svg = string.concat($svg, layers[i]);
         }
 

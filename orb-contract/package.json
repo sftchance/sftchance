@@ -5,6 +5,7 @@
     "@openzeppelin/contracts": "^4.8.3",
     "@wagmi/cli": "^0.1.15",
     "hardhat": "^2.14.0",
+    "hardhat-gas-reporter": "^1.0.9",
     "solady": "^0.0.90",
     "wagmi": "^0.12.12"
   }

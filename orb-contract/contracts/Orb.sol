@@ -11,7 +11,7 @@ import {OrbRenderer} from "./OrbRenderer.sol";
 
 /// @dev Helper libraries.
 import {LibColor} from "./utils/LibColor.sol";
-import {LibProvenance} from "./utils/LibProvenance.sol";
+import {LibOrb} from "./utils/LibOrb.sol";
 
 /**
  * @title Orb: The identity representation of a CHANCE reflected in an abstract Orb form.
@@ -20,7 +20,7 @@ import {LibProvenance} from "./utils/LibProvenance.sol";
  *         coordination of forking it is possible to create a new Orb from an existing one
  *         to denote a generational inspiration even when the genes are not directly passed down.
  *
- * @notice CHANCE Orbs are meant to be a study in how identity is represented onchain and the Digital
+ * @notice CHANCE Orbs are a study in how identity is represented onchain and the Digital
  *         Diaspora that emerges from the introduction of digital races and ethnicities. With a homage
  *         to those before, Orbs are a reflection of the past, present, and future for all those who
  *         have been, are, and will be. All that mint, scroll by, and fork are a part of the CHANCE
@@ -29,20 +29,19 @@ import {LibProvenance} from "./utils/LibProvenance.sol";
  */
 contract Orb is IOrb, ERC1155 {
     using LibColor for uint32;
-    using LibProvenance for Provenance;
+    using LibOrb for uint32;
 
     /// @dev The address of the deployer of the contract.
-    address payable public deployer;
+    address payable public immutable deployer;
 
     /// @dev The address of the renderer contract.
-    OrbRenderer public renderer;
+    OrbRenderer public immutable renderer;
 
     /// @dev Keep track of the color mappings minted.
     mapping(uint256 => Provenance) public provenance;
 
     /**
-     * @notice Constructs the Orb ERC-1155 contract.
-     * @dev The IPFS hash is stored as bytes to save gas.
+     * @notice Constructs the Orb ERC-1155 contract with the renderer.
      */
     constructor(OrbRenderer $renderer) ERC1155() {
         /// @dev Store the deployer address.
@@ -52,47 +51,16 @@ contract Orb is IOrb, ERC1155 {
         renderer = $renderer;
     }
 
+    /**
+     * @notice Enforce the quality of a token ID to minimize the amount of
+     *         birth defects in the Orb population.
+     * @param $id The token ID to validate.
+     */
     modifier onlyValidID(uint256 $id) {
-        /// @dev If a token has already been minted, we know it to be valid.
-        if (provenance[$id].totalSupply > 0) return;
+        /// @dev Confirm the token ID is valid.
+        require(isValid($id), "Orb::onlyValidID: invalid ID");
 
-        /// @dev Warming up the temporary color storage slot.
-        uint32 $color;
-
-        /// @dev Tracking the last domain used to prevent broken Orbs.
-        uint8 prevDomain;
-
-        /// @dev Counting the number of colors in the provided Orb color definition.
-        uint8 colors;
-
-        /// @dev Truncate the 256 bits to 224, trimming the map to exclude the last
-        ///      32 bits which are used for the positional data of the Orb gradient.
-        uint224 id = uint224($id);
-
-        /// @dev Truncate the 256 bits to 224, trimming the map to exclude the last
-        ///      32 bits which are used for the positional data of the Orb gradient.
-        for (id; id > 0; id >>= LibColor.HEX_SIZE) {
-            /// @dev The color is the last 32 bits of the ID.
-            $color = uint32(id & LibColor.HEX_MASK);
-
-            /// @dev Confirm the domain of the active stop is increasing.
-            require(
-                $color.domain() > prevDomain,
-                "Orb::onlyValidID: invalid color domain"
-            );
-
-            /// @dev Keep track when there is a color to render.
-            if (!$color.empty()) colors++;
-        }
-
-        /// @dev Prevent empty Orbs from being drawn.
-        require(colors > 0, "Orb::onlyValidID: no colors");
-
-        /// @dev Refund all the storage gas used to check the ID.
-        delete $color;
-        delete prevDomain;
-        delete colors;
-
+        /// @dev We love the cursed modifier <3.
         _;
     }
 
@@ -152,7 +120,7 @@ contract Orb is IOrb, ERC1155 {
             /// @dev Transfer the funds to the deployer.
             (bool success, ) = deployer.call{
                 value: ($provenance.price - provenanceRef.price)
-            }("Orb::load: transfer failed");
+            }("");
 
             /// @dev Confirm the transfer was successful.
             require(success, "Orb::load: transfer failed");
@@ -238,9 +206,7 @@ contract Orb is IOrb, ERC1155 {
             );
 
             /// @dev Transfer the funds to the vault.
-            (bool success, ) = provenanceRef.vault.call{value: msg.value}(
-                "Orb::mint: transfer failed"
-            );
+            (bool success, ) = provenanceRef.vault.call{value: msg.value}("");
 
             /// @dev Confirm the transfer was successful.
             require(success, "Orb::mint: transfer failed");
@@ -269,6 +235,77 @@ contract Orb is IOrb, ERC1155 {
 
         /// @dev Call the internal burn function.
         super._burn(msg.sender, $id, $amount);
+    }
+
+    /**
+     * @notice Withdraw the ETH balance of the contract.
+     * @dev Only the deployer can call this function.
+     */
+    function withdraw() public virtual {
+        /// @dev Confirm the message sender is the deployer.
+        require(msg.sender == deployer, "Orb::withdraw: unauthorized");
+
+        /// @dev Transfer the funds to the deployer.
+        (bool success, ) = deployer.call{value: address(this).balance}("");
+
+        /// @dev Confirm the transfer was successful.
+        require(success, "Orb::withdraw: transfer failed");
+    }
+
+    /**
+     * See {IOrb-isValid}.
+     */
+    function isValid(uint256 $id) public view virtual returns (bool $valid) {
+        /// @dev If a token has already been minted, we know it to be valid.
+        if (provenance[$id].totalSupply > 0) return true;
+
+        /// @dev Warming up the temporary color storage slot.
+        uint32 $color;
+
+        /// @dev Tracking the last domain used to prevent broken Orbs.
+        uint8 prevDomain;
+
+        /// @dev Counting the number of colors in the provided Orb color definition.
+        uint8 colors;
+
+        /// @dev Truncate the 256 bits to 224, trimming the map to exclude the last
+        ///      32 bits which are used for the positional data of the Orb gradient.
+        uint224 id = uint224($id);
+
+        /// @dev Truncate the 256 bits to 224, trimming the map to exclude the last
+        ///      32 bits which are used for the positional data of the Orb gradient.
+        for (id; id > 0; id >>= LibColor.HEX_OFFSET) {
+            /// @dev The color is the last 32 bits of the ID.
+            $color = uint32(id & LibColor.HEX_MASK);
+
+            /// @dev Confirm the domain of the active stop is increasing.
+            require(
+                $color.domain() > prevDomain,
+                "Orb::isValid: invalid color domain"
+            );
+
+            /// @dev Keep track when there is a color to render.
+            unchecked {
+                if (!$color.empty()) {
+                    ++colors;
+                }
+            }
+        }
+
+        /// @dev Prevent empty Orbs from being drawn.
+        require(colors > 0, "Orb::isValid: no colors");
+
+        /// @dev Get the chromosone head of of the DNA declaration.
+        $color = uint32(($id >> 224) & LibColor.HEX_MASK);
+
+        /// @dev Confirm the head of the DNA reflects the correct definition.
+        require(
+            $color.colorCount() == colors,
+            "Orb::isValid: invalid color count"
+        );
+
+        /// @dev The ID is valid.
+        return true;
     }
 
     /**

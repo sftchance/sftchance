@@ -2,9 +2,6 @@
 
 pragma solidity ^0.8.18;
 
-/// @dev Helper libraries.
-import {LibString} from "solady/src/utils/LibString.sol";
-
 /**
  * @title LibColor
  * @author sftchance.eth
@@ -13,19 +10,11 @@ import {LibString} from "solady/src/utils/LibString.sol";
  *         native representation with managed stops.
  */
 library LibColor {
-    using LibString for uint8;
-
     // A look-up table to simplify the conversion from number to hexstring.
     bytes32 constant HEXADECIMAL_DIGITS = "0123456789ABCDEF";
 
     /// @dev The size of each color in the bitpacked sum.
-    uint256 constant HEX_SIZE = 32;
-
-    /// @dev The size of color index in each bitpacked value.
-    uint256 constant SHORT_SIZE = 8;
-
-    /// @dev The size of each coordinate in a bitpacked colormap segment.
-    uint256 constant COORD_SIZE = 9;
+    uint256 constant HEX_OFFSET = 32;
 
     /// @dev The mask to extract the color from the bitpacked sum.
     uint256 constant HEX_MASK = 0xFFFFFFFF;
@@ -34,13 +23,16 @@ library LibColor {
     uint256 constant HEX_TAIL_MASK = 0xF;
 
     /// @dev The size of color index in each bitpacked value.
+    uint256 constant SHORT_OFFSET = 8;
+
+    /// @dev The size of color index in each bitpacked value.
     uint256 constant SHORT_MASK = 0xFF;
 
-    /// @dev The mask to extract the [0-359] value of a coordinate.
-    uint256 constant COORD_MASK = 0x1FF;
-
     /// @dev The size of the domain index in each bitpacked value.
-    uint256 constant DOMAIN_OFFSET = SHORT_SIZE * 3;
+    uint256 constant DOMAIN_OFFSET = SHORT_OFFSET * 3;
+
+    /// @dev The mask to extract the domain from the bitpacked sum.
+    uint256 constant DOMAIN_MASK = 0x7F;
 
     /**
      * @notice Get the bitpacked value of the color extracted from the
@@ -55,17 +47,17 @@ library LibColor {
         uint8 $index
     ) public pure returns (uint32 $color) {
         /// @dev Extract the color from the bitpacked sum.
-        $color = uint32(($map >> ($index * HEX_SIZE)) & HEX_MASK);
+        $color = uint32(($map >> ($index * HEX_OFFSET)) & HEX_MASK);
     }
 
     /**
-     * @notice Get the [0-255] value of the red channel of the color.
-     * @param $color The bitpacked color to extract the red channel from.
-     * @return $r The [0-255] value of the red channel of the color.
+     * @notice Get the [0-255] value of the blue channel of the color.
+     * @param $color The bitpacked color to extract the blue channel from.
+     * @return $r The [0-255] value of the blue channel of the color.
      */
     function r(uint32 $color) public pure returns (uint8 $r) {
         /// @dev Extract the rgb values from the bitpacked color.
-        $r = uint8($color & SHORT_MASK);
+        $r = uint8(($color >> (SHORT_OFFSET * 2)) & SHORT_MASK);
     }
 
     /**
@@ -75,17 +67,17 @@ library LibColor {
      */
     function g(uint32 $color) public pure returns (uint8 $g) {
         /// @dev Extract the rgb values from the bitpacked color.
-        $g = uint8(($color >> SHORT_SIZE) & SHORT_MASK);
+        $g = uint8(($color >> SHORT_OFFSET) & SHORT_MASK);
     }
 
     /**
-     * @notice Get the [0-255] value of the blue channel of the color.
-     * @param $color The bitpacked color to extract the blue channel from.
-     * @return $b The [0-255] value of the blue channel of the color.
+     * @notice Get the [0-255] value of the red channel of the color.
+     * @param $color The bitpacked color to extract the red channel from.
+     * @return $b The [0-255] value of the red channel of the color.
      */
     function b(uint32 $color) public pure returns (uint8 $b) {
         /// @dev Extract the rgb values from the bitpacked color.
-        $b = uint8(($color >> (SHORT_SIZE * 2)) & SHORT_MASK);
+        $b = uint8($color & SHORT_MASK);
     }
 
     /**
@@ -113,22 +105,7 @@ library LibColor {
     function domain(uint32 $color) public pure returns (uint8 $domain) {
         /// @dev Get the last 8 bits from `$color` and convert it to a `uint8`
         ///      value representing the domain of the color.
-        $domain = uint8(($color >> DOMAIN_OFFSET) & SHORT_MASK);
-    }
-
-    /**
-     * @notice Get the [0-359] value positional data of a color.
-     * @param $color The bitpacked color to extract the hue channel from.
-     * @param $index The index of the position in the color.
-     * @return $coordinate The [0-359] value of the coordinate.
-     */
-    function coordinate(
-        uint32 $color,
-        uint8 $index
-    ) public pure returns (uint8 $coordinate) {
-        /// @dev Extract a uint9 value from the bitpacked color at a specific
-        ///      color index and coordinate position withtin that segment.
-        $coordinate = uint8(($color >> ($index * COORD_SIZE)) & COORD_MASK);
+        $domain = uint8(($color >> DOMAIN_OFFSET) & DOMAIN_MASK);
     }
 
     /**
@@ -139,7 +116,7 @@ library LibColor {
     function empty(uint32 $color) public pure returns (bool $empty) {
         /// @dev Get the last bit and determine if it has been toggled to signal
         ///      that the color is empty.
-        $empty = ($color >> (HEX_SIZE - 1)) == 0;
+        $empty = ($color >> (HEX_OFFSET - 1)) == 0;
     }
 
     /**
