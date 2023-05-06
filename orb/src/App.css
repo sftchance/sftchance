@@ -630,13 +630,13 @@
 
 @keyframes float {
     0% {
-        transform: translateY(0) scale(1.01);
+        transform: translateY(0);
     }
     50% {
-        transform: translateY(-10px) scale(1.03);
+        transform: translateY(-10px);
     }
     100% {
-        transform: translateY(0) scale(1.01);
+        transform: translateY(0);
     }
 }
 
@@ -649,11 +649,11 @@
         -o-filter: blur(10px);
     }
     50% {
-        filter: blur(30px) saturate(110%);
-        -webkit-filter: blur(30px) saturate(110%);
-        -moz-filter: blur(30px) saturate(110%);
-        -ms-filter: blur(30px) saturate(110%);
-        -o-filter: blur(30px) saturate(110%);
+        filter: blur(30px);
+        -webkit-filter: blur(30px);
+        -moz-filter: blur(30px);
+        -ms-filter: blur(30px);
+        -o-filter: blur(30px);
     }
     100% {
         filter: blur(10px);
