@@ -3,8 +3,6 @@ import chroma from 'chroma-js';
 import { Color } from './types';
 
 export const isDark = (hex: string, threshold = 0.3): boolean => {
-    console.log('hex', hex);
-
     hex = hex.replace('#', '');
 
     const int = parseInt(hex, 16);
@@ -32,20 +30,18 @@ export const getRandomColors = (
         .mode('lch')
         .domain(colors.map((color) => color.position));
 
-    console.log('colors', colors);
-
     return colors
         .map((color) => {
             if (color.locked) {
                 return color;
             }
 
-            // if (chroma(color.hex).luminance() < 0.1 || chroma(color.hex).luminance() > 0.9) {
-            //     return {
-            //         ...color,
-            //         hex: chroma(color.hex).set('lch.l', '90%').hex(),
-            //     } as Color;
-            // }
+            if (chroma(color.hex).luminance() < 0.1 || chroma(color.hex).luminance() > 0.9) {
+                return {
+                    ...color,
+                    hex: chroma(color.hex).set('lch.l', '90%').hex(),
+                } as Color;
+            }
 
             return color;
         })
