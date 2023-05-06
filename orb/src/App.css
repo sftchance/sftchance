@@ -149,6 +149,16 @@
     mix-blend-mode: overlay;
 }
 
+.image .noise svg {
+    border-radius: 50%;
+    mix-blend-mode: overlay;
+}
+
+.image .noise path,
+.image .noise rect {
+    mix-blend-mode: overlay;
+}
+
 .image .texture.blurred,
 .image .noise.blurred,
 .image .orb.blurred {
@@ -647,11 +657,11 @@
         -o-filter: blur(10px);
     }
     50% {
-        filter: blur(30px);
-        -webkit-filter: blur(30px);
-        -moz-filter: blur(30px);
-        -ms-filter: blur(30px);
-        -o-filter: blur(30px);
+        filter: blur(30px) brightness(1.5);
+        -webkit-filter: blur(30px) brightness(1.5);
+        -moz-filter: blur(30px) brightness(1.5);
+        -ms-filter: blur(30px) brightness(1.5);
+        -o-filter: blur(30px) brightness(1.5);
     }
     100% {
         filter: blur(10px);

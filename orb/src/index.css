@@ -85,17 +85,17 @@ svg:active path {
     transform: scale(0.98);
 }
 
-.orb.light svg {
+.orb-section.light svg {
     color: rgba(0, 0, 0, 0.5);
 }
 
-.orb.light svg:hover path {
+.orb-section.light svg:hover path {
     fill: rgba(0, 0, 0, 0.87);
     box-shadow: 0 0 12px 24px rgba(0, 0, 0, 0.87);
 }
 
-.orb.light svg:focus path,
-.orb.light svg:active path {
+.orb-section.light svg:focus path,
+.orb-section.light svg:active path {
     fill: rgba(0, 0, 0, 1);
     box-shadow: 0 0 12px 24px rgba(0, 0, 0, 0.87);
 }
