@@ -74,7 +74,7 @@
     user-select: none;
 }
 
-.image {
+.preview .image {
     height: 350px;
     width: 350px;
     display: grid;
@@ -86,8 +86,11 @@
 
 .preview.paused .image,
 .preview.paused .image .blurred,
+.preview.paused .image .blur,
 .no-animation {
-    animation-play-state: paused;
+    /* set animation to 0% into the animation */
+    animation: none !important;
+    transition: all 0s ease-in-out !important;
 }
 
 .image .shadow {

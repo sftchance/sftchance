@@ -3,6 +3,8 @@ import { PreviewProps } from '../../types';
 import { orbTexture, orbNoise } from '../../assets';
 
 const Preview = ({ previewRef, colors, paused }: PreviewProps) => {
+    console.log(paused);
+
     const orbStyle = {
         background: `radial-gradient(95.24% 100.5% at 2.04% 40.07%, ${colors
             .filter((color) => !color.hidden && !color.invalid)

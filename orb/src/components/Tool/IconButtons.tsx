@@ -21,6 +21,8 @@ const IconButtons = ({ importRef, previewRef, light, colors, onUndo, onRedo, onL
         previewRef.current?.style.setProperty('transition', 'none');
         previewRef.current?.style.setProperty('background', transparent ? 'transparent' : light ? '#fff' : '#000');
 
+        previewRef.current?.parentElement?.classList.add('paused');
+
         toPng(previewRef.current as HTMLElement)
             .then((dataUrl) => {
                 const a = document.createElement('a');
@@ -31,6 +33,8 @@ const IconButtons = ({ importRef, previewRef, light, colors, onUndo, onRedo, onL
                     .join('-')}.png`;
 
                 a.click();
+
+                previewRef.current?.parentElement?.classList.remove('paused');
 
                 previewRef.current?.style.setProperty('animation', 'float 5s ease-in-out infinite');
                 previewRef.current?.style.setProperty('transition', 'all 0.3s ease-in-out');
