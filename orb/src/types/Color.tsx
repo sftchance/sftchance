@@ -3,6 +3,7 @@ interface Color {
     position: number;
     invalid?: boolean | undefined;
     hidden?: boolean | undefined;
+    hiddenOnScale?: boolean | undefined;
     locked?: boolean | undefined;
 }
 

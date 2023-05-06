@@ -22,9 +22,12 @@ const URL_COLORS = URL_COLOR_CODES.slice(0, 7).map((hex, index) => {
         position: DEFAULT_COLORS[index].position,
         invalid: !chroma.valid(hex),
         hidden: false,
+        hiddenOnScale: ![0, 3, 6].includes(index),
         locked: false,
     };
 });
+
+console.log(URL_COLORS, URL_COLOR_CODES);
 
 const INIT_COLORS = URL_COLORS.length ? URL_COLORS : DEFAULT_COLORS;
 
@@ -38,6 +41,7 @@ function App() {
                 position: DEFAULT_COLORS[index].position,
                 invalid: !chroma.valid(color),
                 hidden: false,
+                hiddenOnScale: index !== 0 && index !== 6,
                 locked: false,
             }));
 

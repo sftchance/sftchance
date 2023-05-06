@@ -166,7 +166,7 @@
 
 .colors {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     width: 100%;
     align-items: center;
     justify-content: center;
@@ -665,11 +665,7 @@
     }
 }
 
-@media screen and (max-width: 768px) {
-    .colors {
-        grid-template-columns: 1fr;
-    }
-
+@media screen and (max-width: 1220px) {
     .colors .color:nth-child(7) {
         grid-column-start: auto;
         grid-column-end: span 1;
