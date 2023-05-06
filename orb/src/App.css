@@ -79,7 +79,6 @@
     display: grid;
     transform: translateY(20px);
     animation: fadeInUp 1.1s ease-in-out 0.2s forwards;
-    padding-block: 40px;
     align-items: center;
     justify-content: center;
     opacity: 0;
@@ -95,7 +94,7 @@
     width: 350px;
     display: grid;
     position: relative;
-    animation: float 5s ease-in-out infinite;
+    animation: float 5s cubic-bezier(0.42, 0, 0.58, 1) infinite;
     transition: background 0.2s ease-in-out;
     background: #000;
 }
@@ -162,7 +161,7 @@
     -moz-filter: blur(10px);
     -ms-filter: blur(10px);
     -o-filter: blur(10px);
-    animation: blur 5s ease-in-out infinite;
+    animation: blur 5s cubic-bezier(0.42, 0, 0.58, 1) infinite;
 }
 
 .image .blur {
@@ -631,16 +630,13 @@
 
 @keyframes float {
     0% {
-        transform: translateY(0px);
+        transform: translateY(0) scale(1.01);
     }
-    25% {
-        transform: translateY(5px);
-    }
-    75% {
-        transform: translateY(-5px);
+    50% {
+        transform: translateY(-10px) scale(1.03);
     }
     100% {
-        transform: translateY(0px);
+        transform: translateY(0) scale(1.01);
     }
 }
 
@@ -653,11 +649,11 @@
         -o-filter: blur(10px);
     }
     50% {
-        filter: blur(40px);
-        -webkit-filter: blur(40px);
-        -moz-filter: blur(40px);
-        -ms-filter: blur(40px);
-        -o-filter: blur(40px);
+        filter: blur(30px) saturate(110%);
+        -webkit-filter: blur(30px) saturate(110%);
+        -moz-filter: blur(30px) saturate(110%);
+        -ms-filter: blur(30px) saturate(110%);
+        -o-filter: blur(30px) saturate(110%);
     }
     100% {
         filter: blur(10px);
