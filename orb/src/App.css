@@ -253,11 +253,6 @@
     -o-filter: saturate(0.1) brightness(1.05);
 }
 
-.colors .color:nth-child(7) {
-    grid-column-start: auto;
-    grid-column-end: span 2;
-}
-
 .colors .color div {
     width: 350px;
     display: inline-block;
@@ -662,12 +657,5 @@
     }
     100% {
         background-position: 1000px 0;
-    }
-}
-
-@media screen and (max-width: 1220px) {
-    .colors .color:nth-child(7) {
-        grid-column-start: auto;
-        grid-column-end: span 1;
     }
 }
