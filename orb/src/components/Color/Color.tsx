@@ -14,6 +14,8 @@ import { ColorProps } from '../../types';
 import { getScaleColors, isDark } from '../../utils';
 
 const Color = ({ index, color, scaled, onChange, onHide, onToggle, onScaled }: ColorProps) => {
+    if (color.hiddenOnScale) return null;
+
     const scale = getScaleColors(color.hex);
 
     return (
