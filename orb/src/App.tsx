@@ -86,6 +86,8 @@ function App() {
     // id;
 
     const onColorChange = (index: number, color: Color, key: keyof Color, value: string | number | boolean) => {
+        console.log('in color change', index, color, key, value);
+
         setColors((prevColors) => {
             const newColors = [
                 ...prevColors.colors.slice(0, index),
@@ -98,8 +100,14 @@ function App() {
 
             newColors[index].invalid = !chroma.valid(newColors[index].hex);
 
+            // console.log('new colors', newColors);
+
+            // const smoothedColors = getMagicWandColors(newColors);
+
+            // console.log('smoothed colors', smoothedColors);
+
             return {
-                colors: newColors,
+                colors: getMagicWandColors(newColors, true),
                 changes: [...prevColors.changes, prevColors.colors],
                 undos: [],
             };
@@ -107,11 +115,15 @@ function App() {
     };
 
     const onColorsChange = (colors: Color[]) => {
-        console.log('in colors change', colors);
+        // console.log('in colors change', colors);
+
+        // const smoothedColors = getMagicWandColors(colors);
+
+        // console.log('smoothed colors', smoothedColors);
 
         setColors((prevColors) => {
             return {
-                colors,
+                colors: colors,
                 changes: [...prevColors.changes, prevColors.colors],
                 undos: [],
             };

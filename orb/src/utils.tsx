@@ -3,6 +3,8 @@ import chroma from 'chroma-js';
 import { Color } from './types';
 
 export const isDark = (hex: string, threshold = 0.3): boolean => {
+    console.log('hex', hex);
+
     hex = hex.replace('#', '');
 
     const int = parseInt(hex, 16);
@@ -161,29 +163,24 @@ export const getGradientColors = (data: string, numColors = 7): Promise<string[]
     });
 };
 
-export const getMagicWandColors = (colors: Color[]): Color[] => {
-    console.log('shuffledColors', colors);
+export const getMagicWandColors = (colors: Color[], onlyGaps = false): Color[] => {
+    const invalidColors = colors.some((color) => color.invalid || !chroma.valid(color.hex));
 
-    if (colors.some((color) => color.invalid)) return [];
+    if (colors.length == 0 || invalidColors) {
+        return colors;
+    }
 
-    const sortedColors = colors.sort((a, b) => {
-        const aLuminance = chroma(a.hex).luminance();
-        const bLuminance = chroma(b.hex).luminance();
+    const firstColor = colors[0].hex;
+    const lastColor = colors[colors.length - 1].hex;
 
-        return aLuminance + bLuminance;
-    });
+    const colorScale = !onlyGaps
+        ? chroma.scale([firstColor, lastColor])
+        : chroma.scale([firstColor, colors[3].hex, lastColor]);
 
-    const firstColor = sortedColors[0];
-    const lastColor = sortedColors[sortedColors.length - 1];
+    const newColors = colorScale.colors(colors.length);
 
-    console.log('checking for invalid', sortedColors);
-
-    const colorScale = chroma.scale([firstColor.hex, lastColor.hex]);
-
-    const newColors = colorScale.colors(sortedColors.length);
-
-    return sortedColors.map((color, index) => {
-        if (colors[index].locked) return colors[index];
+    return colors.map((color, index) => {
+        if (colors[index].locked || (onlyGaps && [0, 3, 6].includes(index))) return colors[index];
 
         return {
             ...color,

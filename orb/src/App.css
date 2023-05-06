@@ -102,7 +102,6 @@
 .preview.paused .image .blurred,
 .preview.paused .image .blur,
 .no-animation {
-    /* set animation to 0% into the animation */
     animation: none !important;
     transition: all 0s ease-in-out !important;
 }
@@ -112,13 +111,13 @@
     width: 200px;
     background: radial-gradient(
         95.24% 100.5% at 2.04% 40.07%,
-        rgba(0, 0, 0, 0.1) 0%,
-        rgba(0, 0, 0, 0.2) 24.91%,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0.1) 24.91%,
         rgba(0, 0, 0, 0.3) 40.75%,
         rgba(0, 0, 0, 0.45) 70.96%,
         rgba(0, 0, 0, 0.6) 83.61%,
-        rgba(0, 0, 0, 0.85) 93.72%,
-        #000000 100%
+        rgba(0, 0, 0, 0.95) 93.72%,
+        rgba(0, 0, 0, 0.95) 100%
     );
     box-shadow: 0px 30px 30px rgba(0, 0, 0, 0.5);
     position: absolute;
