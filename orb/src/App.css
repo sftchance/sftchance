@@ -96,7 +96,6 @@
     position: relative;
     animation: float 5s cubic-bezier(0.42, 0, 0.58, 1) infinite;
     transition: background 0.2s ease-in-out;
-    background: #000;
 }
 
 .preview.paused .image,

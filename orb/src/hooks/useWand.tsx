@@ -1,3 +1,5 @@
+import chroma from 'chroma-js';
+
 import { useMemo } from 'react';
 
 import { useWandProps } from '../types';

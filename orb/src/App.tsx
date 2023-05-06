@@ -107,6 +107,8 @@ function App() {
     };
 
     const onColorsChange = (colors: Color[]) => {
+        console.log('in colors change', colors);
+
         setColors((prevColors) => {
             return {
                 colors,
@@ -170,6 +172,9 @@ function App() {
 
                     <Preview previewRef={previewRef} colors={colors.colors} paused={paused} />
                 </div>
+
+                {/* TODO: Make it when a color changes, we wand the colors that the user cannot control so that they are always in the gradient */}
+                {/* TODO: Use the 3 user colors as the base color generators rather than just the first and last */}
 
                 <div className="bottom">
                     <FooterIconButtons

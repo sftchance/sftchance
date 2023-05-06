@@ -30,14 +30,20 @@ export const getRandomColors = (
         .mode('lch')
         .domain(colors.map((color) => color.position));
 
+    console.log('colors', colors);
+
     return colors
         .map((color) => {
-            if (chroma(color.hex).luminance() < 0.1 || chroma(color.hex).luminance() > 0.9) {
-                return {
-                    ...color,
-                    hex: chroma(color.hex).set('lch.l', '90%').hex(),
-                } as Color;
+            if (color.locked) {
+                return color;
             }
+
+            // if (chroma(color.hex).luminance() < 0.1 || chroma(color.hex).luminance() > 0.9) {
+            //     return {
+            //         ...color,
+            //         hex: chroma(color.hex).set('lch.l', '90%').hex(),
+            //     } as Color;
+            // }
 
             return color;
         })
@@ -94,7 +100,6 @@ export const getScaleColors = (color: string): string[] => {
     const scale = chroma
         .scale(['#000', color, '#fff'])
         .mode('lch')
-        .padding([0.1, 0.1])
         .colors(15)
         .map((color) => chroma(color).hex());
 
@@ -157,18 +162,29 @@ export const getGradientColors = (data: string, numColors = 7): Promise<string[]
 };
 
 export const getMagicWandColors = (colors: Color[]): Color[] => {
-    const sortedColors = colors.sort((a, b) => a.position - b.position);
+    console.log('shuffledColors', colors);
+
+    if (colors.some((color) => color.invalid)) return [];
+
+    const sortedColors = colors.sort((a, b) => {
+        const aLuminance = chroma(a.hex).luminance();
+        const bLuminance = chroma(b.hex).luminance();
+
+        return aLuminance + bLuminance;
+    });
 
     const firstColor = sortedColors[0];
     const lastColor = sortedColors[sortedColors.length - 1];
 
-    if (sortedColors.some((color) => color.invalid)) return [];
+    console.log('checking for invalid', sortedColors);
 
     const colorScale = chroma.scale([firstColor.hex, lastColor.hex]);
 
     const newColors = colorScale.colors(sortedColors.length);
 
     return sortedColors.map((color, index) => {
+        if (colors[index].locked) return colors[index];
+
         return {
             ...color,
             hex: newColors[index],
