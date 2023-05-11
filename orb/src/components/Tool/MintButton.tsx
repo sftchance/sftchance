@@ -3,10 +3,12 @@ import { InjectedConnector } from 'wagmi/connectors/injected';
 
 import { MintButtonProps } from '../../types';
 
-const MintButton = ({ dna, onMint }: MintButtonProps) => {
+const MintButton = ({ id, onMint }: MintButtonProps) => {
     const { address, isConnected } = useAccount();
 
-    console.log(dna, onMint);
+    onMint;
+
+    console.log(id);
 
     const { connect } = useConnect({
         connector: new InjectedConnector(),

@@ -44,7 +44,8 @@
     margin-bottom: 20px;
 }
 
-.icon-buttons {
+.icon-buttons,
+.icon-buttons.bottom .icons {
     display: flex;
     position: relative;
     align-items: center;
@@ -60,6 +61,10 @@
     display: flex;
 }
 
+.icon-buttons.bottom .settings {
+    margin-left: auto;
+}
+
 .icon-buttons .icon-button.copy {
     margin-left: auto;
 }
@@ -73,6 +78,75 @@
     border: none;
     cursor: pointer;
     z-index: 3;
+}
+
+.icon-buttons.bottom {
+    width: 100%;
+    display: grid;
+    grid-template-rows: auto auto;
+    gap: 0px;
+}
+
+.icon-buttons.bottom .icons {
+    margin-block: 0;
+    margin-bottom: 20px;
+}
+
+.icon-buttons.bottom .minting {
+    display: grid;
+    grid-template-columns: max-content auto;
+    width: 100%;
+    gap: 20px;
+    align-items: center;
+}
+
+.icon-buttons.bottom .minting .holders {
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.icon-buttons.bottom .minting .holders .holders-container {
+    display: flex;
+    align-items: center;
+}
+
+.icon-buttons.bottom .minting .holders .holders-container .holder {
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.45);
+    width: 20px;
+    height: 20px;
+    margin-right: -10px;
+    border: 2px solid #000000;
+    transition: all 0.2s ease-in-out;
+}
+
+.icon-buttons.bottom .minting .holders .holders-container .holder:hover {
+    background: rgba(255, 255, 255, 0.6);
+    margin-right: 10px;
+    border: 2px solid #ffffff;
+    cursor: pointer;
+}
+
+.icon-buttons.bottom .minting .holders .holders-container .holder:last-child {
+    margin-right: 0;
+}
+
+.icon-buttons.bottom .minting .mint-button {
+    margin-left: auto;
+}
+
+.icon-buttons.bottom .advanced {
+    display: grid;
+    grid-template-columns: min-content auto;
+    gap: 20px;
+}
+
+.icon-buttons.bottom .advanced .form-group {
+    display: grid;
+    grid-template-rows: min-content auto;
+    gap: 10px;
 }
 
 .preview {
@@ -94,7 +168,6 @@
     width: 350px;
     display: grid;
     position: relative;
-    animation: float 5s cubic-bezier(0.42, 0, 0.58, 1) infinite;
     transition: background 0.2s ease-in-out;
 }
 
@@ -104,80 +177,6 @@
 .no-animation {
     animation: none !important;
     transition: all 0s ease-in-out !important;
-}
-
-.image .shadow {
-    height: 200px;
-    width: 200px;
-    background: radial-gradient(
-        95.24% 100.5% at 2.04% 40.07%,
-        rgba(0, 0, 0, 0) 0%,
-        rgba(0, 0, 0, 0.1) 24.91%,
-        rgba(0, 0, 0, 0.3) 40.75%,
-        rgba(0, 0, 0, 0.45) 70.96%,
-        rgba(0, 0, 0, 0.6) 83.61%,
-        rgba(0, 0, 0, 0.95) 93.72%,
-        rgba(0, 0, 0, 0.95) 100%
-    );
-    box-shadow: 0px 30px 30px rgba(0, 0, 0, 0.5);
-    position: absolute;
-    border-radius: 50%;
-    transform: translate(-50%, -50%) rotate(90deg);
-    top: 50%;
-    left: 50%;
-    mix-blend-mode: overlay;
-}
-
-.image .texture {
-    height: 200px;
-    width: 200px;
-    position: absolute;
-    transform: translate(-50%, -50%) rotate(-20deg);
-    top: 50%;
-    left: 50%;
-    mix-blend-mode: screen;
-}
-
-.image .noise {
-    height: 200px;
-    width: 200px;
-    position: absolute;
-    border-radius: 50%;
-    transform: translate(-50%, -50%) rotate(90deg);
-    top: 50%;
-    left: 50%;
-    mix-blend-mode: overlay;
-}
-
-.image .noise svg {
-    border-radius: 50%;
-    mix-blend-mode: overlay;
-}
-
-.image .noise path,
-.image .noise rect {
-    mix-blend-mode: overlay;
-}
-
-.image .texture.blurred,
-.image .noise.blurred,
-.image .orb.blurred {
-    height: 215px;
-    width: 215px;
-    filter: blur(10px);
-    -webkit-filter: blur(10px);
-    -moz-filter: blur(10px);
-    -ms-filter: blur(10px);
-    -o-filter: blur(10px);
-    animation: blur 5s cubic-bezier(0.42, 0, 0.58, 1) infinite;
-}
-
-.image .blur {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
 }
 
 .image .orb {
@@ -229,7 +228,7 @@
     background-image: url('/orb-noise.png');
     background-size: cover;
     background-position: center;
-    background-size: 200px 200px;
+    background-size: 400px 400px;
     background-blend-mode: overlay;
     opacity: 0.2;
     z-index: 0;
@@ -390,6 +389,7 @@
     margin-inline: 10px;
     text-align: center;
     z-index: 2;
+    font-variant-numeric: tabular-nums;
 }
 
 .colors .color input:hover {
@@ -633,50 +633,5 @@
     100% {
         opacity: 0;
         transform: translateY(10px);
-    }
-}
-
-@keyframes float {
-    0% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-10px);
-    }
-    100% {
-        transform: translateY(0);
-    }
-}
-
-@keyframes blur {
-    0% {
-        filter: blur(10px);
-        -webkit-filter: blur(10px);
-        -moz-filter: blur(10px);
-        -ms-filter: blur(10px);
-        -o-filter: blur(10px);
-    }
-    50% {
-        filter: blur(30px) brightness(1.5);
-        -webkit-filter: blur(30px) brightness(1.5);
-        -moz-filter: blur(30px) brightness(1.5);
-        -ms-filter: blur(30px) brightness(1.5);
-        -o-filter: blur(30px) brightness(1.5);
-    }
-    100% {
-        filter: blur(10px);
-        -webkit-filter: blur(10px);
-        -moz-filter: blur(10px);
-        -ms-filter: blur(10px);
-        -o-filter: blur(10px);
-    }
-}
-
-@keyframes shimmer {
-    0% {
-        background-position: -1000px 0;
-    }
-    100% {
-        background-position: 1000px 0;
     }
 }

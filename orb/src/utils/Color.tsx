@@ -1,8 +1,8 @@
 import chroma from 'chroma-js';
 
-import { Color } from './types';
+import { Color } from '../types';
 
-export const isDark = (hex: string, threshold = 0.3): boolean => {
+const isDark = (hex: string, threshold = 0.3): boolean => {
     hex = hex.replace('#', '');
 
     const int = parseInt(hex, 16);
@@ -16,15 +16,11 @@ export const isDark = (hex: string, threshold = 0.3): boolean => {
     return luminance < threshold;
 };
 
-export const getRandomColor = (): string => {
+const getRandomColor = (): string => {
     return chroma.random().hex();
 };
 
-export const getRandomColors = (
-    colors: Color[],
-    first: string = getRandomColor(),
-    second: string = getRandomColor(),
-) => {
+const getRandomColors = (colors: Color[], first: string = getRandomColor(), second: string = getRandomColor()) => {
     const randomColors = chroma
         .scale([first, second])
         .mode('lch')
@@ -57,23 +53,23 @@ export const getRandomColors = (
         });
 };
 
-export const getComplementaryColors = (colors: Color[], first: string = getRandomColor()) => {
+const getComplementaryColors = (colors: Color[], first: string = getRandomColor()) => {
     return getRandomColors(colors, first, chroma(first).set('hsl.h', '+180').hex());
 };
 
-export const getSplitComplementaryColors = (colors: Color[], first: string = getRandomColor()) => {
+const getSplitComplementaryColors = (colors: Color[], first: string = getRandomColor()) => {
     return getRandomColors(colors, first, chroma(first).set('hsl.h', '+150').hex());
 };
 
-export const getTriadicColors = (colors: Color[], first: string = getRandomColor()) => {
+const getTriadicColors = (colors: Color[], first: string = getRandomColor()) => {
     return getRandomColors(colors, first, chroma(first).set('hsl.h', '+120').hex());
 };
 
-export const getTetradicColors = (colors: Color[], first: string = getRandomColor()) => {
+const getTetradicColors = (colors: Color[], first: string = getRandomColor()) => {
     return getRandomColors(colors, first, chroma(first).set('hsl.h', '+90').hex());
 };
 
-export const getAlgorithmicRandomColors = (colors: Color[], first: string = getRandomColor()) => {
+const getAlgorithmicRandomColors = (colors: Color[], first: string = getRandomColor()) => {
     const random = Math.floor(Math.random() * 4);
 
     switch (random) {
@@ -90,7 +86,7 @@ export const getAlgorithmicRandomColors = (colors: Color[], first: string = getR
     }
 };
 
-export const getScaleColors = (color: string): string[] => {
+const getScaleColors = (color: string): string[] => {
     if (!chroma.valid(color)) {
         return [];
     }
@@ -104,7 +100,7 @@ export const getScaleColors = (color: string): string[] => {
     return scale;
 };
 
-export const getGradientColors = (data: string, numColors = 7): Promise<string[]> => {
+const getGradientColors = (data: string, numColors = 7): Promise<string[]> => {
     return new Promise((resolve, reject) => {
         const img = new Image();
         img.src = data;
@@ -159,7 +155,7 @@ export const getGradientColors = (data: string, numColors = 7): Promise<string[]
     });
 };
 
-export const getMagicWandColors = (colors: Color[], onlyGaps = false): Color[] => {
+const getMagicWandColors = (colors: Color[], onlyGaps = false): Color[] => {
     const invalidColors = colors.some((color) => color.invalid || !chroma.valid(color.hex));
 
     if (colors.length == 0 || invalidColors) {
@@ -183,4 +179,18 @@ export const getMagicWandColors = (colors: Color[], onlyGaps = false): Color[] =
             hex: newColors[index],
         } as Color;
     });
+};
+
+export {
+    isDark,
+    getRandomColor,
+    getRandomColors,
+    getComplementaryColors,
+    getSplitComplementaryColors,
+    getTriadicColors,
+    getTetradicColors,
+    getAlgorithmicRandomColors,
+    getScaleColors,
+    getGradientColors,
+    getMagicWandColors,
 };

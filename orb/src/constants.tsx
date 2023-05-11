@@ -7,26 +7,26 @@ export const DEFAULT_COLORS: Color[] = [
     },
     {
         hex: '#9c81ee',
-        position: 10,
+        position: 15,
         hiddenOnScale: true,
     },
     {
         hex: '#8c6fde',
-        position: 21,
+        position: 30,
         hiddenOnScale: true,
     },
     {
         hex: '#52308a',
-        position: 71,
+        position: 70,
     },
     {
         hex: '#52308a',
-        position: 84,
+        position: 85,
         hiddenOnScale: true,
     },
     {
         hex: '#31054c',
-        position: 94,
+        position: 97,
         hiddenOnScale: true,
     },
     {

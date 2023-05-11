@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+   <defs>
+      <filter id="red-glow" filterUnits="userSpaceOnUse" x="-50%" y="-50%" width="200%" height="200%">
+         <feGaussianBlur in="SourceAlpha" stdDeviation="10" result="blur" />
+         <feOffset in="blur" dx="0" dy="0" result="offsetBlur" />
+         <feMerge>
+            <feMergeNode in="offsetBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+         </feMerge>
+         <feColorMatrix result="red-blur" in="offsetBlur" type="matrix" values="1 0 0 0 0 0 0.06 0 0 0 0 0 0.44 0 0 0 0 0 0 1 0" />
+         <feMerge>
+            <feMergeNode in="red-blur"/>
+            <feMergeNode in="SourceGraphic"/>
+         </feMerge>
+      </filter>
+   </defs>
+
+   <circle cx="200" cy="200" r="100" filter="url(#red-glow)" fill="none" stroke="red" stroke-width="0" />
+   <circle cx="200" cy="200" r="100" fill="red" />
+</svg>

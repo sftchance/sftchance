@@ -56,6 +56,32 @@ button {
     transition: all 0.2s ease-in-out;
 }
 
+.form-group label {
+    font-weight: 700;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    display: block;
+    color: rgba(255, 255, 255, 0.5);
+    transition: all 0.2s ease-in-out;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    font-weight: 700;
+    border-radius: 4px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background-color: transparent;
+    color: rgba(255, 255, 255, 0.87);
+    transition: all 0.2s ease-in-out;
+    outline: none;
+}
+
+.form-group input:focus {
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
 img {
     image-rendering: crisp-edges;
 }
@@ -101,13 +127,13 @@ svg:active path {
 }
 
 .hidden-display {
-    display: none;
+    display: none !important;
     animation: fadeOutDown 0.2s ease-in-out forwards;
 }
 
 .hidden-opacity,
 .hidden-opacity * {
-    opacity: 0;
+    opacity: 0 !important;
     animation: fadeOutDown 0.2s ease-in-out forwards;
 }
 

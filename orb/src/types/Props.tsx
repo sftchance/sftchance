@@ -31,6 +31,7 @@ export type DropperProps = {
 export type FooterIconButtonsProps = {
     paused: boolean;
     perfect: boolean;
+    id: bigint;
     onPause: () => void;
     onReset: () => void;
     onShuffle: () => void;
@@ -54,7 +55,7 @@ export type IconButtonsProps = {
 };
 
 export type MintButtonProps = {
-    dna: number;
+    id: bigint;
     onMint: () => void;
 };
 

@@ -1,12 +1,12 @@
 import chroma from 'chroma-js';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Color, Colors as ColorsType } from './types';
 
 import { DEFAULT_COLORS } from './constants';
 
-import { getAlgorithmicRandomColors, getMagicWandColors } from './utils';
+import { getAlgorithmicRandomColors, getId, getMagicWandColors } from './utils';
 
 import { useDropper, useWand } from './hooks';
 
@@ -65,25 +65,29 @@ function App() {
 
     const { colors: wandColors, perfect } = useWand({ colors: colors.colors });
 
-    // const id = useMemo(() => {
-    //     return colorMapToId({
-    //         x: 0,
-    //         y: 0,
-    //         speed: 0,
-    //         colorCount: colors.length,
-    //         bgTransparent: false,
-    //         bgScalar: 0,
-    //         colors: colors.map((color) => ({
-    //             empty: false,
-    //             domain: 0,
-    //             r: 0,
-    //             g: 0,
-    //             b: 0,
-    //         })),
-    //     });
-    // }, [colors]);
+    const id = useMemo(() => {
+        return getId({
+            x: 0,
+            y: 0,
+            speed: 0,
+            colorCount: colors.colors.length,
+            bgTransparent: false,
+            bgScalar: 0,
+            colors: colors.colors.map((color) => {
+                const rgb = chroma(color.hex).rgb();
 
-    // id;
+                return {
+                    empty: false,
+                    domain: color.position,
+                    r: rgb[0],
+                    g: rgb[1],
+                    b: rgb[2],
+                };
+            }),
+        });
+    }, [colors]);
+
+    console.log(id);
 
     const onColorChange = (index: number, color: Color, key: keyof Color, value: string | number | boolean) => {
         setColors((prevColors) => {
@@ -171,13 +175,11 @@ function App() {
                     <Preview previewRef={previewRef} colors={colors.colors} paused={paused} />
                 </div>
 
-                {/* TODO: Make it when a color changes, we wand the colors that the user cannot control so that they are always in the gradient */}
-                {/* TODO: Use the 3 user colors as the base color generators rather than just the first and last */}
-
                 <div className="bottom">
                     <FooterIconButtons
                         perfect={perfect}
                         paused={paused}
+                        id={id}
                         onReset={() => {
                             onColorsChange(DEFAULT_COLORS);
                         }}
@@ -216,7 +218,6 @@ function App() {
                     />
                 </div>
 
-                {/* <MintButton colors={colors} /> */}
             </div>
         </div>
     );
