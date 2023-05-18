@@ -7,9 +7,10 @@ import {IOrbRenderer} from "./interfaces/IOrbRenderer.sol";
 
 /// @dev Helper libraries.
 import {Base64} from "solady/src/utils/Base64.sol";
+import {LibString} from "solady/src/utils/LibString.sol";
+
 import {LibColor} from "./utils/LibColor.sol";
 import {LibOrb} from "./utils/LibOrb.sol";
-import {LibString} from "solady/src/utils/LibString.sol";
 
 /**
  * @title OrbRender
@@ -61,10 +62,14 @@ import {LibString} from "solady/src/utils/LibString.sol";
  *                          and color_count == number of non-empty colors in dna
  */
 contract OrbRenderer is IOrbRenderer {
+    /// @dev Type libraries.
     using Base64 for bytes;
+    using LibString for bytes;
+    using LibString for uint256;
+
+    /// @dev Color utility libraries.
     using LibColor for uint32;
     using LibOrb for uint32;
-    using LibString for uint256;
 
     /// @dev The maximum number of gradient stops an Orb can have.
     uint8 public constant MAX_STOPS = 7;
@@ -89,82 +94,97 @@ contract OrbRenderer is IOrbRenderer {
     }
 
     /**
-     * @notice Builds the SVG representation of the gradient.
-     * @param $id The token ID of the Orb.
-     * @return $gradient The SVG representation of the gradient.
+     * See {IOrbRenderer-svg}.
      */
-    function gradient(
-        uint256 $id
-    ) internal pure returns (string memory $gradient) {
-        /// @dev Prepare the metadata information slots.
+    function svg(uint256 $id, uint32 $config) public view virtual returns (string memory $svg) {
+        /// @dev Determine the length of the animation.
+        string memory animationDuration = (5 - $config.speed()).toString();
+
+        // ethers.utils.toUtf8Bytes(HEAD_STR),
+
+        /// @dev Initialize the SVG.
+        $svg = string.concat(
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" preserveAspectRatio="xMidYMid meet"><style>.f{animation:',
+            animationDuration,
+            's cubic-bezier(.42,0,.58,1) infinite float}.b{animation:',
+            animationDuration,
+            layers[0]
+        );
+
+        /// @dev Determine the polar coordinates of the radial gradient in the Orb.
+        uint256 fx = $config.coordinate(0);
+        uint256 fy = $config.coordinate(1);
+
+        /// @dev Create the re-usable radial gradient instance.
+        string memory radialTop = string.concat(
+            '<radialGradient id="og" cx="50%" cy="50%" r="65%" fx="',
+            fx.toString(),
+            '%" fy="',
+            fy.toString(),
+            '%">'
+        );
+
+        /// @dev Prepare the radial gradient positioning.
+        $svg = string.concat(
+            $svg, 
+            radialTop 
+        );
+
+        /// @dev Load the stack-space for the gradient.
         uint8 i;
         uint32 color;
 
-        /// @dev Extract the first 32 bits of the token ID.
-        /// @notice The last segment in a token ID contains two coordinates that
-        ///         are each 9 bits in length. The first coordinate is the
-        ///         x-coordinate and the second coordinate is the y-coordinate
-        ///         for the center of the radial gradient.
-        uint32 coords = color.color($id, MAX_STOPS);
-
-        /// @dev Prepare the head of the Orb gradient declaration.
-        $gradient = string.concat(
-            '<defs><radialGradient id="gradient" gradientUnits="userSpaceOnUse" gradientTransform="translate(',
-            uint256(coords.coordinate(0)).toString(),
-            " ",
-            uint256(coords.coordinate(1)).toString(),
-            ') rotate(135) scale(251 263)">'
-        );
-
         /// @dev Iterate over the gradient stops.
-        for (i; i < MAX_STOPS; i++) {
-            /// @dev Extract the first 24 bits of the active value of `$i` and
-            ///      convert it to a single `uint24` value representing a color.
+        for(i; i < MAX_STOPS; i++) { 
+            /// @dev Extract the first 24 bits of the active value of `i`. 
             color = color.color($id, i);
 
             /// @dev Confirm the color is not empty and intended to be used.
             if (color.empty()) continue;
 
-            /// @dev Add the color to the gradient map.
-            $gradient = string.concat(
-                $gradient,
-                '<stop stop-color="#',
+            /// @dev Add the color stop to the gradient map.
+            $svg = string.concat(
+                $svg,
+                '<stop offset="',
+                color.domain().toString(),
+                '%" stop-color="#',
                 color.hexadecimal(),
-                '" offset="',
-                uint256(color.domain()).toString(),
-                '%"/>'
+                '"/>'
             );
         }
 
-        /// @dev Add the tail of the gradient declaration.
-        $gradient = string.concat($gradient, "</radialGradient></defs>");
-    }
-
-    /**
-     * See {IOrbRenderer-svg}.
-     */
-    function svg(uint256 $id) public view virtual returns (string memory $svg) {
-        /// @dev Initialize the SVG.
-        $svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">';
-
-        /// @dev Add a black background to the SVG.
+        /// @dev Close the radial gradient.
         $svg = string.concat(
             $svg,
-            '<rect width="100" height="100" fill="#000"/>'
+            "</radialGradient>"
         );
 
-        /// @dev Add a circle to the gradient that has the gradient the fill.
-        $svg = string.concat(
-            $svg,
-            gradient($id),
-            '<circle cx="50" cy="50" r="50" fill="url(#gradient)"/>'
-        );
+        /// @dev Prepare the slot for the maybe background.
+        string memory background;
 
-        /// @dev Add the layers to the SVG.
-        for (uint256 i; i < layers.length; i++) {
-            /// @dev Append the single layer to the SVG that was loaded into storage.
-            $svg = string.concat($svg, layers[i]);
+        /// @dev Add a background if the background is not transparent.
+        if(!$config.bgTransparent()) { 
+            /// @dev Recover the value of the background scalar and convert it to a bitpacked value.
+            uint32 backgroundColor = $config.bgScalar().scalar();
+
+            /// @dev Set the background string to a colored rectangle.
+            background = string.concat(
+                '<rect width="100%" height="100%" fill="#',
+                backgroundColor.hexadecimal(),
+                '"/>'
+            );
         }
+
+        /// @dev Append the gradient representing the shadow of the Orb.
+        $svg = string.concat(
+            $svg,
+            radialTop,
+            layers[1],
+            // $id.toString(), /// @dev Seed used for the noise function.
+            layers[2],
+            background, /// @dev Maybe add a background.
+            layers[3]
+        );
 
         /// @dev Encode and return the SVG in base64.
         $svg = string.concat(
@@ -174,24 +194,113 @@ contract OrbRenderer is IOrbRenderer {
     }
 
     /**
+     * See {IOrbRenderer-attributes}.
+     */
+    function attributes(uint256 $id, uint32 $config) public pure returns (string memory $attributes) { 
+        /// @dev Append a coordinate string that represents the 'x' and 'y' coordinates of the Orb radial gradient.
+        $attributes = string.concat(
+            '{"trait_type": "Coordinates", "value": "(',
+            $config.coordinate(0).toString(),
+            ', ',
+            $config.coordinate(1).toString(),
+            ')"}'
+        );
+
+        /// @dev Append a value that represents the speed of the Orb.
+        $attributes = string.concat(
+            $attributes,
+            ',{"display_type": "number", "trait_type": "Speed", "value": ',
+            $config.speed().toString(),
+            '}'
+        );
+
+        /// @dev Append a value that represents the number of colors in the Orb.
+        $attributes = string.concat(
+            $attributes,
+            ',{"display_type": "number", "trait_type": "Colors", "value": ',
+            uint256($config.colorCount()).toString(),
+            '}'
+        );
+
+        /// @dev Recover the value of the background scalar and convert it to a bitpacked value.
+        uint32 backgroundColor = $config.bgScalar().scalar();
+
+        /// @dev Append the color of the background.
+        if (!$config.bgTransparent()) {
+            /// @dev Append the background as a hexadecimal.
+            $attributes = string.concat(
+                $attributes,
+                ',{"trait_type": "Background", "value": "#',
+                backgroundColor.hexadecimal(),
+                '"}'
+            );
+        } else { 
+            /// @dev Append the background as transparent.
+            $attributes = string.concat(
+                $attributes,
+                ',{"trait_type": "Background", "value": "Transparent"}'
+            );
+        }
+
+        /// @dev Load the stack-space for the gradient.
+        uint8 i;
+        uint32 color;
+        
+        /// @dev Append the hexadecimal of each color.
+        for (i; i < $config.colorCount(); i++) {
+            /// @dev Extract the first 24 bits of the active value of `i`. 
+            color = color.color($id, i);
+
+            /// @dev Confirm the color is not empty and intended to be used.
+            if (color.empty()) continue;
+
+            /// @dev Append the hexadecimal of the color.
+            $attributes = string.concat(
+                $attributes,
+                ',{"trait_type": "Color #',
+                uint256(i + 1).toString(),
+                '", "value": "#',
+                color.hexadecimal(),
+                ':',
+                color.domain().toString(),
+                '"}'
+            );
+        }    
+    }
+
+    /**
      * See {IOrbRenderer-uri}.
      */
     function uri(
         uint256 $id
     ) public view virtual returns (string memory metadata) {
-        /// @dev Build the SVG metadata.
-        metadata = svg($id);
+        /// @dev Extract the configuration from the Orb ID.
+        uint32 config = uint32($id >> 224);
 
-        /// @dev Build the JSON metadata.
         metadata = string.concat(
             '{ "name": "Orb #',
             $id.toString(),
-            '", "description": "Orbs are a reflection of the CHANCE you are given.", "image": "',
-            metadata,
-            '", "attributes": [], external_url": "',
+            '", "description": "This Orb captures the aura of the holder.", "attributes": [',
+            attributes($id, config),
+            '], "image": "',
+            svg($id, config),
+            '", "external_url": "',
             uriIPFS($id),
-            '" }'
+            '"}'
         );
+
+        /// @dev Build the Orb metadata.
+        // metadata = string.concat(
+        //     '{ "name": "Orb #',
+        //     $id.toString(),
+        //     '", "description": "This Orb captures the aura of the holder.", "image": "',
+        //     svg($id, config),
+        //     '", "attributes": [',
+        //     attributes($id, config),
+        //     '], external_url": "',
+        //     uriIPFS($id),
+        //     '" }'
+        // );
 
         /// @dev Encode and return the JSON metadata in base64.
         metadata = string.concat(

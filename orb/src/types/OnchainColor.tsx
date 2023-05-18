@@ -10,7 +10,7 @@ export type ColorMap = {
     x: number;
     y: number;
     speed: number;
-    colorCount: number;
+    colorCount?: number;
     bgTransparent: boolean;
     bgScalar: number;
     colors: Color[];

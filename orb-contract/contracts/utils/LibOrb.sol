@@ -31,10 +31,10 @@ library LibOrb {
     uint256 constant BG_TRANSPARENT_MASK = 0x1;
 
     /// @dev The bit shift needed to extract the bg scalar value.
-    uint256 constant BG_SCALAR_OFFSET = 24;
+    uint32 constant BG_SCALAR_OFFSET = 24;
 
     /// @dev The mask used with bitwise `&` to extract the bg scalar value.
-    uint256 constant BG_SCALAR_MASK = 0xFF;
+    uint32 constant BG_SCALAR_MASK = 0xFF;
 
     /**
      * @notice Get the [0-359] value positional data of a color.
@@ -45,10 +45,10 @@ library LibOrb {
     function coordinate(
         uint32 $color,
         uint8 $index
-    ) public pure returns (uint8 $coordinate) {
+    ) public pure returns (uint256 $coordinate) {
         /// @dev Extract a uint9 value from the bitpacked color at a specific
         ///      color index and coordinate position withtin that segment.
-        $coordinate = uint8(($color >> ($index * COORD_OFFSET)) & COORD_MASK);
+        $coordinate = ($color >> ($index * COORD_OFFSET)) & COORD_MASK;
     }
 
     /**
@@ -56,8 +56,8 @@ library LibOrb {
      * @param $color The bitpacked color to extract the speed channel from.
      * @return $speed The [0-3] value of the speed channel of the color.
      */
-    function speed(uint32 $color) public pure returns (uint8 $speed) {
-        $speed = uint8(($color >> SPEED_OFFSET) & SPEED_MASK);
+    function speed(uint32 $color) public pure returns (uint256 $speed) {
+        $speed = ($color >> SPEED_OFFSET) & SPEED_MASK;
     }
 
     /**
@@ -65,8 +65,8 @@ library LibOrb {
      * @param $color The bitpacked color to extract the color count channel from.
      * @return $colorCount The [0-7] value of the color count channel of the color.
      */
-    function colorCount(uint32 $color) public pure returns (uint8 $colorCount) {
-        $colorCount = uint8(($color >> COLOR_COUNT_OFFSET) & COLOR_COUNT_MASK);
+    function colorCount(uint32 $color) public pure returns (uint256 $colorCount) {
+        $colorCount = ($color >> COLOR_COUNT_OFFSET) & COLOR_COUNT_MASK;
     }
 
     /**
@@ -94,7 +94,8 @@ library LibOrb {
      * @param $color The bitpacked color to extract the bg scalar channel from.
      * @return $scalar The [0-255] value of the bg scalar channel of the color.
      */
-    function bgScalar(uint32 $color) public pure returns (uint8 $scalar) {
-        $scalar = uint8(($color >> BG_SCALAR_OFFSET) & BG_SCALAR_MASK);
+    function bgScalar(uint32 $color) public pure returns (uint32 $scalar) {
+        /// @dev Extract a uint8 value from the bitpacked color at the bg scalar position.
+        $scalar = ($color >> BG_SCALAR_OFFSET) & BG_SCALAR_MASK;
     }
 }

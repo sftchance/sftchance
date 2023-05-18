@@ -14,25 +14,25 @@ library LibColor {
     bytes32 constant HEXADECIMAL_DIGITS = "0123456789ABCDEF";
 
     /// @dev The size of each color in the bitpacked sum.
-    uint256 constant HEX_OFFSET = 32;
+    uint32 constant HEX_OFFSET = 32;
 
     /// @dev The mask to extract the color from the bitpacked sum.
-    uint256 constant HEX_MASK = 0xFFFFFFFF;
+    uint32 constant HEX_MASK = 0xFFFFFFFF;
 
     /// @dev The mask to extract the color from the bitpacked sum.
-    uint256 constant HEX_TAIL_MASK = 0xF;
+    uint32 constant HEX_TAIL_MASK = 0xF;
 
     /// @dev The size of color index in each bitpacked value.
-    uint256 constant SHORT_OFFSET = 8;
+    uint32 constant SHORT_OFFSET = 8;
 
     /// @dev The size of color index in each bitpacked value.
-    uint256 constant SHORT_MASK = 0xFF;
+    uint32 constant SHORT_MASK = 0xFF;
 
     /// @dev The size of the domain index in each bitpacked value.
-    uint256 constant DOMAIN_OFFSET = SHORT_OFFSET * 3;
+    uint32 constant DOMAIN_OFFSET = SHORT_OFFSET * 3;
 
     /// @dev The mask to extract the domain from the bitpacked sum.
-    uint256 constant DOMAIN_MASK = 0x7F;
+    uint32 constant DOMAIN_MASK = 0x7F;
 
     /**
      * @notice Get the bitpacked value of the color extracted from the
@@ -98,14 +98,24 @@ library LibColor {
     }
 
     /**
+     * @notice Take a single [0-255] value and convert it to a bitpacked color.
+     * @param $scalar The [0-255] value to convert to a bitpacked color.
+     * @return $color The bitpacked color.
+     */
+    function scalar(uint32 $scalar) public pure returns (uint32 $color) {
+        /// @dev Bitpack the scalar value into a color.
+        $color = $scalar | ($scalar << SHORT_OFFSET) | ($scalar << (SHORT_OFFSET * 2));
+    }
+
+    /**
      * @notice Get the [0-100] value of the red channel of the color.
      * @param $color The bitpacked color to extract the red channel from.
      * @return $domain The [0-100] value of the color in the gradient.
      */
-    function domain(uint32 $color) public pure returns (uint8 $domain) {
+    function domain(uint32 $color) public pure returns (uint256 $domain) {
         /// @dev Get the last 8 bits from `$color` and convert it to a `uint8`
         ///      value representing the domain of the color.
-        $domain = uint8(($color >> DOMAIN_OFFSET) & DOMAIN_MASK);
+        $domain = ($color >> DOMAIN_OFFSET) & DOMAIN_MASK;
     }
 
     /**
