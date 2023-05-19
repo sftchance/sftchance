@@ -6,13 +6,16 @@ interface IOrb {
     /// @dev The provenance metadata of an Orb.
     /// @notice With an address in the same slot, we only have 96 bits left for the rest of the data.
     struct Provenance {
+        /// @dev The packed value of the Orb's supply.
         /// @notice  First 6 bits represents the power of the next 2.
         /// @notice To set it to `uint32.max` supply should be set to the value of `2^32`
         /// @notice Thanks to the wizardry of binary, 2^32 == 4,294,967,296 == uint32 max.
         /// @dev | supply (2 bits) | power (6 bits) |
         uint8 maxSupply;
-        /// @dev The price of the Orb in gwei.
-        /// | base (19 bits) | decimals (5 bits) |
+        /// @dev The price of the Orb in arithmetic implementation.
+        /// @notice The first 5 bits represents the decimals (recommended to be `18`).
+        /// @notice The last 19 bits represents the base.
+        /// @dev | base (19 bits) | decimals (5 bits) |
         uint24 price;
         /// @dev The total supply of the Orb minted at any given time.
         uint32 totalSupply;
@@ -22,7 +25,7 @@ interface IOrb {
         address payable vault;
     }
 
-    /// dev Enables the tracking of loaded Orbs.
+    /// @dev Enables the tracking of loaded Orbs.
     event Load(
         address indexed $by,
         uint256 indexed $id,
@@ -38,6 +41,9 @@ interface IOrb {
         uint256 indexed $id,
         uint256 indexed $forkId
     );
+
+    /// @dev Enables the tracking of forfeited Orbs.
+    event Forfeit(address indexed $by, uint256 indexed $id);
 
     /**
      * @notice Loads the provenance data for an Orb (can be creation and updating).

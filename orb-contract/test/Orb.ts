@@ -8,21 +8,21 @@ import { OnchainColorMap } from '../../orb/src/types';
 import { getId, getMap, getPackedMaxSupply, getPackedPrice } from '../utils/Color';
 
 const DEFAULT_MAP: OnchainColorMap = {
-    x: 360,
-    y: 360,
-    speed: 3,
+    x: 1,
+    y: 35,
+    speed: 2,
     bgTransparent: false,
     bgScalar: 255,
     colors: [
         { empty: false, domain: 10, r: 255, g: 0, b: 255 },
         { empty: false, domain: 20, r: 255, g: 255, b: 255 },
         { empty: false, domain: 30, r: 255, g: 0, b: 255 },
-        { empty: false, domain: 40, r: 255, g: 255, b: 255 },
+        { empty: true, domain: 40, r: 255, g: 255, b: 255 },
         { empty: false, domain: 50, r: 255, g: 255, b: 255 },
         { empty: false, domain: 60, r: 255, g: 255, b: 255 },
         { empty: false, domain: 70, r: 0, g: 0, b: 0 },
     ],
-    colorCount: 7,
+    colorCount: 6,
 };
 
 DEFAULT_MAP.colorCount = DEFAULT_MAP.colors.filter(c => !c.empty).length;
@@ -37,7 +37,6 @@ const DEFAULT_ATTRIBUTES = [
     { trait_type: 'Color #1', value: '#FF00FF:10' },
     { trait_type: 'Color #2', value: '#FFFFFF:20' },
     { trait_type: 'Color #3', value: '#FF00FF:30' },
-    { trait_type: 'Color #4', value: '#FFFFFF:40' },
     { trait_type: 'Color #5', value: '#FFFFFF:50' },
     { trait_type: 'Color #6', value: '#FFFFFF:60' },
     { trait_type: 'Color #7', value: '#000000:70' }
@@ -64,14 +63,6 @@ const LAYERS: string[] = [
 
 describe('Orb', () => {
     const IPFS_HASH: string = 'Qm';
-
-    const deployMockDeployerFixture = async () => {
-        const Mock = await ethers.getContractFactory('MockDeployer');
-        const mock = await Mock.deploy();
-        await mock.deployed();
-
-        return { mock }
-    }
 
     const deployOrbColorLibraryFixture = async () => {
         const OrbColorLibrary = await ethers.getContractFactory('LibColor');
@@ -349,11 +340,12 @@ describe('Orb', () => {
             await expect(orb.load(id, provenance, { value: 1 })).to.be.revertedWith("Orb::load: invalid funding")
 
             await expect(orb.load(id, provenance, { value: ethers.utils.parseEther('1') })).to.emit(orb, 'Load');
+
+            await expect(orb.forfeit(id)).to.emit(orb, 'Forfeit');
         });
 
         it("Should load and hit price checks but fail due to invalid vault", async () => {
-            const { mock } = await loadFixture(deployMockDeployerFixture);
-            const { deployer, orb } = await loadFixture(deployOrbFixture);
+            const { deployer, otherAccount, orb } = await loadFixture(deployOrbFixture);
 
             const id = DEFAULT_ID;
 
@@ -368,16 +360,82 @@ describe('Orb', () => {
                 price: getPackedPrice({ base: 1n, decimals: 18n }),
                 totalSupply: 0,
                 closure: 0,
-                vault: mock.address,
+                vault: otherAccount.address,
             }
 
             await expect(orb.load(id, provenance, { value: 1 })).to.be.revertedWith("Orb::load: invalid funding")
         })
     });
 
-    describe('Forking', () => { });
+    describe('Forking', () => {
+        it("Should fork and forfeit a valid Orb", async () => {
+            const { deployer, otherAccount, orb } = await loadFixture(deployOrbFixture);
 
-    describe('Forfeit', () => { });
+            const _map = DEFAULT_MAP;
 
-    // TODO: Test art generation
+            _map.x = 1;
+            _map.y = 35;
+            _map.bgTransparent = true;
+
+            const newId = getId(_map);
+
+            const newMap = getMap(newId);
+
+            expect(newMap).to.deep.equal(_map);
+
+            await expect(orb.mint(deployer.address, newId, 1, '0x')).to.emit(orb, 'TransferSingle');
+
+            let provenance = {
+                maxSupply: getPackedMaxSupply({ supply: 2n, power: 3n }),
+                price: 0n,
+                totalSupply: 0,
+                closure: 0,
+                vault: otherAccount.address,
+            }
+
+            await expect(orb.fork(99999, newId, provenance)).to.be.revertedWith('Orb::isValid: invalid color domain');
+
+            await expect(orb.fork(newId, newId, provenance)).to.be.revertedWith("Orb::load: forked provenance is same as new");
+
+            await expect(orb.mint(deployer.address, DEFAULT_ID, 1, '0x')).to.emit(orb, 'TransferSingle');
+
+            await expect(orb.fork(DEFAULT_ID, newId, provenance)).to.emit(orb, 'Fork');
+
+            await expect(orb.mint(deployer.address, newId, 1, '0x')).to.emit(orb, 'TransferSingle');
+
+            await expect(orb.mint(deployer.address, newId, 20, '0x')).to.be.revertedWith("Orb::mint: totalSupply exceeded")
+
+            _map.x = 2
+
+            const forkedId = getId(_map);
+
+            await expect(orb.fork(forkedId, newId, provenance)).to.be.revertedWith('Orb::load: forked provenance not found');
+
+            await expect(orb.forfeit(newId)).to.be.revertedWith('Orb::forfeit: invalid caller');
+
+            provenance.price = getPackedPrice({ base: 1n, decimals: 18n });
+
+            await expect(orb.connect(otherAccount).load(newId, provenance, { value: ethers.utils.parseEther('1') })).to.emit(orb, 'Load');
+
+            await expect(orb.mint(deployer.address, newId, 1, '0x', { value: ethers.utils.parseEther('1') })).to.emit(orb, 'TransferSingle');
+
+            await expect(orb.mint(deployer.address, newId, 1, '0x', { value: 1 })).to.be.revertedWith("Orb::mint: invalid funding")
+
+            // provenance.vault = mock.address;
+
+            await expect(orb.connect(otherAccount).load(newId, provenance)).to.emit(orb, 'Load');
+
+            const originalBalance = await ethers.provider.getBalance(otherAccount.address);
+
+            await expect(orb.mint(deployer.address, newId, 1, '0x', { value: ethers.utils.parseEther('1') })).to.emit(orb, 'TransferSingle');
+
+            const newBalance = await ethers.provider.getBalance(otherAccount.address);
+
+            expect(newBalance.sub(originalBalance)).to.equal(ethers.utils.parseEther('1'));
+
+            await expect(orb.burn(newId, 1)).to.emit(orb, 'TransferSingle');
+
+            expect(await orb.withdraw())
+        });
+    });
 });

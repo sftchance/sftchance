@@ -96,7 +96,10 @@ contract OrbRenderer is IOrbRenderer {
     /**
      * See {IOrbRenderer-svg}.
      */
-    function svg(uint256 $id, uint32 $config) public view virtual returns (string memory $svg) {
+    function svg(
+        uint256 $id,
+        uint32 $config
+    ) public view virtual returns (string memory $svg) {
         /// @dev Determine the length of the animation.
         string memory animationDuration = (5 - $config.speed()).toString();
 
@@ -104,7 +107,7 @@ contract OrbRenderer is IOrbRenderer {
         $svg = string.concat(
             '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" preserveAspectRatio="xMidYMid meet"><style>.f{animation:',
             animationDuration,
-            's cubic-bezier(.42,0,.58,1) infinite float}.b{animation:',
+            "s cubic-bezier(.42,0,.58,1) infinite float}.b{animation:",
             animationDuration,
             layers[0]
         );
@@ -123,18 +126,15 @@ contract OrbRenderer is IOrbRenderer {
         );
 
         /// @dev Prepare the radial gradient positioning.
-        $svg = string.concat(
-            $svg, 
-            radialTop 
-        );
+        $svg = string.concat($svg, radialTop);
 
         /// @dev Load the stack-space for the gradient.
         uint8 i;
         uint32 color;
 
         /// @dev Iterate over the gradient stops.
-        for(i; i < MAX_STOPS; i++) { 
-            /// @dev Extract the first 24 bits of the active value of `i`. 
+        for (i; i < MAX_STOPS; i++) {
+            /// @dev Extract the first 24 bits of the active value of `i`.
             color = color.color($id, i);
 
             /// @dev Confirm the color is not empty and intended to be used.
@@ -152,16 +152,13 @@ contract OrbRenderer is IOrbRenderer {
         }
 
         /// @dev Close the radial gradient.
-        $svg = string.concat(
-            $svg,
-            "</radialGradient>"
-        );
+        $svg = string.concat($svg, "</radialGradient>");
 
         /// @dev Prepare the slot for the maybe background.
         string memory background;
 
         /// @dev Add a background if the background is not transparent.
-        if(!$config.bgTransparent()) { 
+        if (!$config.bgTransparent()) {
             /// @dev Recover the value of the background scalar and convert it to a bitpacked value.
             uint32 backgroundColor = $config.bgScalar().scalar();
 
@@ -194,13 +191,16 @@ contract OrbRenderer is IOrbRenderer {
     /**
      * See {IOrbRenderer-attributes}.
      */
-    function attributes(uint256 $id, uint32 $config) public pure virtual returns (string memory $attributes) { 
+    function attributes(
+        uint256 $id,
+        uint32 $config
+    ) public pure virtual returns (string memory $attributes) {
         /// @dev Append a coordinate string that represents the 'x' and 'y' coordinates of the Orb radial gradient.
         $attributes = string.concat(
             '{"trait_type": "Coordinates", "value": "(',
-            $config.coordinate(0).toString(),
-            ', ',
             $config.coordinate(1).toString(),
+            ", ",
+            $config.coordinate(0).toString(),
             ')"}'
         );
 
@@ -209,7 +209,7 @@ contract OrbRenderer is IOrbRenderer {
             $attributes,
             ',{"display_type": "number", "trait_type": "Speed", "value": ',
             $config.speed().toString(),
-            '}'
+            "}"
         );
 
         /// @dev Append a value that represents the number of colors in the Orb.
@@ -217,7 +217,7 @@ contract OrbRenderer is IOrbRenderer {
             $attributes,
             ',{"display_type": "number", "trait_type": "Colors", "value": ',
             uint256($config.colorCount()).toString(),
-            '}'
+            "}"
         );
 
         /// @dev Recover the value of the background scalar and convert it to a bitpacked value.
@@ -232,7 +232,7 @@ contract OrbRenderer is IOrbRenderer {
                 backgroundColor.hexadecimal(),
                 '"}'
             );
-        } else { 
+        } else {
             /// @dev Append the background as transparent.
             $attributes = string.concat(
                 $attributes,
@@ -243,10 +243,10 @@ contract OrbRenderer is IOrbRenderer {
         /// @dev Load the stack-space for the gradient.
         uint8 i;
         uint32 color;
-        
+
         /// @dev Append the hexadecimal of each color.
-        for (i; i < $config.colorCount(); i++) {
-            /// @dev Extract the first 24 bits of the active value of `i`. 
+        for (i; i < MAX_STOPS; i++) {
+            /// @dev Extract the first 24 bits of the active value of `i`.
             color = color.color($id, i);
 
             /// @dev Confirm the color is not empty and intended to be used.
@@ -259,11 +259,11 @@ contract OrbRenderer is IOrbRenderer {
                 uint256(i + 1).toString(),
                 '", "value": "#',
                 color.hexadecimal(),
-                ':',
+                ":",
                 color.domain().toString(),
                 '"}'
             );
-        }    
+        }
     }
 
     /**
@@ -288,7 +288,7 @@ contract OrbRenderer is IOrbRenderer {
             '"}'
         );
 
-       /// @dev Encode and return the JSON metadata in base64.
+        /// @dev Encode and return the JSON metadata in base64.
         metadata = string.concat(
             "data:application/json;base64,",
             abi.encodePacked(metadata).encode()

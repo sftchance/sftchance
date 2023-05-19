@@ -28,6 +28,7 @@ import {LibOrb} from "./utils/LibOrb.sol";
  *         To protect the outcome, every action is acknowledged and accounted for in detail.
  */
 contract Orb is IOrb, ERC1155 {
+    /// @dev Load in the fancy libraries.
     using LibColor for uint32;
     using LibOrb for uint32;
 
@@ -152,11 +153,6 @@ contract Orb is IOrb, ERC1155 {
             $provenance.closure,
             $provenance.vault
         );
-
-        /// @dev Pay the difference in price to the deployer of the Orbs.
-        /// @notice We use standard `transfer` here because we know the deployer
-        ///        to be safe and not malicious.
-        if (priceDiff > 0) deployer.transfer(priceDiff);
     }
 
     /**
@@ -167,8 +163,11 @@ contract Orb is IOrb, ERC1155 {
         uint256 $id,
         Provenance memory $provenance
     ) public payable virtual onlyValidID($forkedId) {
-        /// @dev Confirm the forked provenance exists.
-        require($forkedId != 0, "Orb::load: forked provenance not found");
+        /// @dev Confirm the ids are not overlapping.
+        require(
+            $forkedId != $id,
+            "Orb::load: forked provenance is same as new"
+        );
 
         /// @dev Confirm the `forkedId` has been minted.
         require(
@@ -193,17 +192,19 @@ contract Orb is IOrb, ERC1155 {
         /// @dev Confirm the message sender has permission to forfeit the provenance.
         require(
             provenanceRef.vault == msg.sender,
-            "Orb::forfeit: vault already set"
+            "Orb::forfeit: invalid caller"
         );
 
-        /// @dev Set the vault to the ETH Dolphin address.
-        /// @notice "Be the change you want to see." - horsefacts
+        /// @dev Kill the vault.
         provenanceRef.vault = payable(
-            address(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE)
+            address(0x000000000000000000000000000000000000dEaD)
         );
 
         /// @dev Reset the price to 0.
         delete provenanceRef.price;
+
+        /// @dev Emit the forfeit event.
+        emit Forfeit(msg.sender, $id);
     }
 
     /**
@@ -222,32 +223,35 @@ contract Orb is IOrb, ERC1155 {
         /// @notice When `maxSupply` is 0, the total supply is unlimited.
         require(
             provenanceRef.maxSupply == 0 ||
-                provenanceRef.totalSupply + $amount <= provenanceRef.maxSupply,
+                provenanceRef.totalSupply + $amount <=
+                LibOrb.maxSupply(provenanceRef.maxSupply),
             "Orb::mint: totalSupply exceeded"
         );
+
+        /// @dev Increment the total supply of the Orb.
+        provenanceRef.totalSupply += $amount;
 
         /// @dev Transfer the funds to the vault if the price is greater than 0.
         if (provenanceRef.price != 0) {
             /// @dev Confirm the proper value has been provided.
             require(
-                msg.value == provenanceRef.price * $amount,
-                "Orb::mint: incorrect value"
+                msg.value == LibOrb.price(provenanceRef.price) * $amount,
+                "Orb::mint: invalid funding"
             );
 
             /// @dev Transfer the funds to the vault.
-            (bool success, ) = provenanceRef.vault.call{value: msg.value}("");
+            (bool success, ) = provenanceRef.vault.call{value: msg.value}(
+                unicode"⚪"
+            );
 
             /// @dev Confirm the transfer was successful.
             require(success, "Orb::mint: transfer failed");
         }
 
-        /// @dev Increment the total supply of the Orb.
-        unchecked {
-            provenanceRef.totalSupply += $amount;
-        }
-
         /// @dev Call the internal mint function having validated payment.
-        super._mint($to, $id, $amount, $data);
+        /// @notice This is done after transfering otherwise one could `load()` without
+        ///         providing payment and then `mint()` to get the Orb for free.
+        _mint($to, $id, $amount, $data);
     }
 
     /**
@@ -258,12 +262,10 @@ contract Orb is IOrb, ERC1155 {
         Provenance storage provenanceRef = provenance[$id];
 
         /// @dev Decrement the total supply of the Orb.
-        unchecked {
-            provenanceRef.totalSupply -= $amount;
-        }
+        provenanceRef.totalSupply -= $amount;
 
         /// @dev Call the internal burn function.
-        super._burn(msg.sender, $id, $amount);
+        _burn(msg.sender, $id, $amount);
     }
 
     /**
@@ -271,9 +273,6 @@ contract Orb is IOrb, ERC1155 {
      * @dev Only the deployer can call this function.
      */
     function withdraw() public virtual {
-        /// @dev Confirm the message sender is the deployer.
-        require(msg.sender == deployer, "Orb::withdraw: unauthorized");
-
         /// @dev Transfer the funds to the deployer.
         (bool success, ) = deployer.call{value: address(this).balance}("");
 
@@ -331,7 +330,7 @@ contract Orb is IOrb, ERC1155 {
         require(colors > 0, "Orb::isValid: no colors");
 
         /// @dev Get the chromosone head of of the DNA declaration.
-        $color = uint32(($id >> 224) & LibColor.HEX_MASK);
+        $color = uint32($id >> 224);
 
         /// @dev Confirm 0 <= x & y <= 100.
         require(

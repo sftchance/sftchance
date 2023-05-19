@@ -55,8 +55,8 @@ export const getMap = (id: bigint): OnchainColorMap => {
     const colorOffset = 224n;
 
     return {
-        x: Number((id >> colorOffset) & 0x1ffn),
-        y: Number((id >> (colorOffset + 9n)) & 0x1ffn),
+        y: Number((id >> colorOffset) & 0x1ffn),
+        x: Number((id >> (colorOffset + 9n)) & 0x1ffn),
         speed: Number((id >> (colorOffset + 18n)) & 0x3n),
         colorCount: Number((id >> (colorOffset + 20n)) & 0x7n),
         bgTransparent: ((id >> (colorOffset + 23n)) & 0x1n) === 1n,

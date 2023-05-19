@@ -7,7 +7,7 @@ import {LibString} from "solady/src/utils/LibString.sol";
 
 library LibOrb {
     /// @dev The maximum allowed value of a polar coordinate.
-    uint256 constant MAX_COORDINATE = 360;
+    uint256 constant MAX_COORDINATE = 100;
 
     /// @dev The maximum allowed value of a gradient domain.
     uint256 constant MAX_DOMAIN = 100;
