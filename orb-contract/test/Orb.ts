@@ -406,10 +406,15 @@ describe('Orb', () => {
             await expect(orb.mint(deployer.address, newId, 20, '0x')).to.be.revertedWith("Orb::mint: totalSupply exceeded")
 
             _map.x = 2
+            _map.bgTransparent = true;
 
             const forkedId = getId(_map);
 
             await expect(orb.fork(forkedId, newId, provenance)).to.be.revertedWith('Orb::load: forked provenance not found');
+
+            await expect(orb.mint(deployer.address, forkedId, 1, '0x')).to.emit(orb, 'TransferSingle');
+
+            expect(await orb.uri(forkedId));
 
             await expect(orb.forfeit(newId)).to.be.revertedWith('Orb::forfeit: invalid caller');
 

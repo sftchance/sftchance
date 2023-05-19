@@ -36,7 +36,7 @@ import {LibOrb} from "./utils/LibOrb.sol";
  *
  * @dev Bitpacked schema definition of the Orb token ID:
  *
- *      pos   (18 bits) = | x (9 bits) | y (9 bits) | 
+ *      pos   (18 bits) = | y (9 bits) | x (9 bits) | 
  * 
  *      top   (32 bits) = | bg_scalar (8 bits) | bg_transparent (1 bit) | color_count (3 bits) 
  *                        | speed (2 bits) | pos (18 bits) |
@@ -51,7 +51,7 @@ import {LibOrb} from "./utils/LibOrb.sol";
  *      where (in raw value)    0 <= color_count <= 7
  *                          and 0 <= bg_scalar <= 255
  *                          and 0 <= domain <= 100
- *                          and domain_{N-1} <= domain_{N}
+ *                          and domain_{N} <= domain_{N+1}
  *                          and 0 <= x <= 360
  *                          and 0 <= y <= 360
  *                          and 0 <= speed <= 3
