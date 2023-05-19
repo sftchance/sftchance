@@ -270,11 +270,12 @@ contract Orb is IOrb, ERC1155 {
 
     /**
      * @notice Withdraw the ETH balance of the contract.
-     * @dev Only the deployer can call this function.
      */
     function withdraw() public virtual {
         /// @dev Transfer the funds to the deployer.
-        (bool success, ) = deployer.call{value: address(this).balance}("");
+        (bool success, ) = deployer.call{value: address(this).balance}(
+            unicode"⚪"
+        );
 
         /// @dev Confirm the transfer was successful.
         require(success, "Orb::withdraw: transfer failed");

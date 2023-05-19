@@ -58,7 +58,7 @@ import {LibOrb} from "./utils/LibOrb.sol";
  *                          and 0 <= r <= 255
  *                          and 0 <= g <= 255
  *                          and 0 <= b <= 255
- *                          and dna != 0 (dna is not all empty)
+ *                          and dna != 0 (dna is not all empty) 
  *                          and color_count == number of non-empty colors in dna
  */
 contract OrbRenderer is IOrbRenderer {

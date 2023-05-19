@@ -4,6 +4,8 @@
         "@nomicfoundation/hardhat-toolbox": "^2.0.0",
         "@openzeppelin/contracts": "^4.8.3",
         "@wagmi/cli": "^1.0.1",
+        "dot": "^1.1.3",
+        "dotenv": "^16.0.3",
         "hardhat": "^2.14.0",
         "hardhat-gas-reporter": "^1.0.9",
         "hardhat-tracer": "^2.3.0",
@@ -14,6 +16,7 @@
     "scripts": {
         "clean": "npx hardhat clean && shx rm -rf artifacts/ cache/ coverage/ coverage.json typechain-types/ types/",
         "clean:modules": "shx rm -rf node_modules/ && npm i",
-        "build": "npx hardhat compile && npx wagmi generate"
+        "build": "npx hardhat compile && npx wagmi generate",
+        "ci": "npx hardhat test"
     }
 }

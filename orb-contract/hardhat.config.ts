@@ -1,7 +1,13 @@
 import { HardhatUserConfig } from 'hardhat/config';
 
+import dotenv from 'dotenv';
+
 import '@nomicfoundation/hardhat-toolbox';
 import "hardhat-tracer"
+
+dotenv.config();
+
+const PRIVATE_KEY_ACCOUNTS = [process.env.PRIVATE_KEY || ""];
 
 const config: HardhatUserConfig = {
     solidity: {
@@ -31,6 +37,15 @@ const config: HardhatUserConfig = {
         alwaysGenerateOverloads: true,
         dontOverrideCompile: false
     },
+    etherscan: {
+        apiKey: process.env.ETHERSCAN_API_KEY,
+    },
+    networks: {
+        sepolia: {
+            url: process.env.TESTNET_RPC_URL,
+            accounts: PRIVATE_KEY_ACCOUNTS,
+        },
+    }
 };
 
 export default config;
