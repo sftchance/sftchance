@@ -6,11 +6,8 @@ pragma solidity ^0.8.18;
 import {LibString} from "solady/src/utils/LibString.sol";
 
 library LibOrb {
-    /// @dev The maximum allowed value of a polar coordinate.
-    uint256 constant MAX_COORDINATE = 100;
-
     /// @dev The maximum allowed value of a gradient domain.
-    uint256 constant MAX_DOMAIN = 100;
+    uint256 constant MAX_POLAR = 100;
 
     /// @dev The bit shift needed to extract the coordinate value.
     uint256 constant COORD_OFFSET = 9;

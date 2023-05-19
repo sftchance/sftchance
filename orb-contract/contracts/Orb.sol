@@ -314,7 +314,7 @@ contract Orb is IOrb, ERC1155 {
 
             /// @dev Confirm 0 <= domain <= 100 and domain_N < domain_N+1.
             require(
-                domain > prevDomain && domain <= LibOrb.MAX_DOMAIN,
+                domain > prevDomain && domain <= LibOrb.MAX_POLAR,
                 "Orb::isValid: invalid color domain"
             );
 
@@ -334,8 +334,8 @@ contract Orb is IOrb, ERC1155 {
 
         /// @dev Confirm 0 <= x & y <= 100.
         require(
-            $color.coordinate(0) <= LibOrb.MAX_COORDINATE &&
-                $color.coordinate(1) <= LibOrb.MAX_COORDINATE,
+            $color.coordinate(0) <= LibOrb.MAX_POLAR &&
+                $color.coordinate(1) <= LibOrb.MAX_POLAR,
             "Orb::isValid: invalid gradient coordinates"
         );
 
