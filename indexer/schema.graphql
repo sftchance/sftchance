@@ -1,0 +1,10 @@
+# type ExampleEntity @entity {
+#   id: String!
+#   name: String!
+# }
+
+# TODO: Can I track holders?
+
+type Orb @entity {
+  id: String!
+}
