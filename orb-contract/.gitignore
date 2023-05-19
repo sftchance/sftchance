@@ -11,6 +11,7 @@ types
 # Hardhat files
 cache
 artifacts
+pyrometer
 
 hooks.ts
 
