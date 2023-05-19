@@ -12,6 +12,14 @@ interface IOrbRenderer {
     function svg(uint256 $id, uint32 $config) external view returns (string memory);
 
     /**
+     * @notice Returns the attributes of an Orb.
+     * @param $id The token ID of the Orb.
+     * @param $config The configuration of the Orb.
+     * @return attributes The attributes of the Orb.
+     */
+    function attributes(uint256 $id, uint32 $config) external pure returns (string memory);
+
+    /**
      * @notice Returns the URI of an Orb.
      * @param $id The token ID of the Orb.
      * @return The URI of the Orb.

@@ -6,6 +6,12 @@ pragma solidity ^0.8.18;
 import {LibString} from "solady/src/utils/LibString.sol";
 
 library LibOrb {
+    /// @dev The maximum allowed value of a polar coordinate.
+    uint256 constant MAX_COORDINATE = 360;
+
+    /// @dev The maximum allowed value of a gradient domain.
+    uint256 constant MAX_DOMAIN = 100;
+
     /// @dev The bit shift needed to extract the coordinate value.
     uint256 constant COORD_OFFSET = 9;
 
@@ -65,7 +71,9 @@ library LibOrb {
      * @param $color The bitpacked color to extract the color count channel from.
      * @return $colorCount The [0-7] value of the color count channel of the color.
      */
-    function colorCount(uint32 $color) public pure returns (uint256 $colorCount) {
+    function colorCount(
+        uint32 $color
+    ) public pure returns (uint256 $colorCount) {
         $colorCount = ($color >> COLOR_COUNT_OFFSET) & COLOR_COUNT_MASK;
     }
 
@@ -97,5 +105,37 @@ library LibOrb {
     function bgScalar(uint32 $color) public pure returns (uint32 $scalar) {
         /// @dev Extract a uint8 value from the bitpacked color at the bg scalar position.
         $scalar = ($color >> BG_SCALAR_OFFSET) & BG_SCALAR_MASK;
+    }
+
+    /**
+     * @notice Recover the configured max supply from the bitpacked price.
+     *
+     */
+    function maxSupply(uint8 $supply) public pure returns (uint32) {
+        /// @dev Get the 6 most right bits of the price.
+        uint8 power = $supply & 0x3F;
+
+        /// @dev Get the 2 most left bits of the price.
+        uint8 supply = ($supply >> 6) & 0x3;
+
+        /// @dev If the supply is 0, return 0.
+        if (supply == 0) return 0;
+
+        /// @dev Raise the supply to the power of the power.
+        /// @notice The max value of uint32 is 4294967295 (2^32 - 1) which is
+        ///         the max supply that can be minted. Thus, the max value of
+        ///         the power is 32 and we will always roll down 1.
+        return uint32(supply ** power - 1);
+    }
+
+    function price(uint24 $price) public pure returns (uint256) {
+        /// @dev Get the 5 most right bits of the price.
+        uint24 decimals = $price & 0x1F;
+
+        /// @dev Get the next 19 bits of the price.
+        uint24 base = ($price >> 5) & 0x7FFFF;
+
+        /// @dev Adjust the base price by the decimals.
+        return uint256(base * (10 ** decimals));
     }
 }

@@ -14,7 +14,7 @@ import {LibColor} from "./utils/LibColor.sol";
 import {LibOrb} from "./utils/LibOrb.sol";
 
 /**
- * @title Orb: The identity representation of a CHANCE reflected in an abstract Orb form.
+ * @title Orb: An Orb is the visualization of its holder's aura.
  * @author sftchance.eth
  * @notice This contract enables an open market of familial-based Orbs. Through optional and social
  *         coordination of forking it is possible to create a new Orb from an existing one
@@ -74,34 +74,62 @@ contract Orb is IOrb, ERC1155 {
         /// @dev Warming up the provenance mappings.
         Provenance storage provenanceRef = provenance[$id];
 
+        /// @dev Determine if the caller is the natural Aura source.
+        bool isAuraSource = provenanceRef.vault == address(0) &&
+            balanceOf(msg.sender, $id) > provenanceRef.totalSupply / 2;
+
         /// @dev Confirm the message sender has permission to set the provenance.
+        /// @notice Confirms the caller holds the majority of the Orb that is being
+        ///         loaded -- An Orb cannot be rugged from a natural Aura source.
         require(
-            provenanceRef.vault == address(0) ||
-                provenanceRef.vault == msg.sender,
-            "Orb::load: vault already set"
+            isAuraSource || provenanceRef.vault == msg.sender,
+            "Orb::load: invalid vault configuration"
         );
+
+        /// @dev Determine if an infinite amount of the Orb can be minted.
+        bool isInfinite = provenanceRef.maxSupply == 0 &&
+            $provenance.maxSupply == 0;
+
+        /// @dev Recover the bitpacked max supply of the Orb.
+        uint32 $uMaxSupply = LibOrb.maxSupply($provenance.maxSupply);
+
+        /// @dev Determine if the max supply is within the range of the previous max supply
+        ///      while confirming the maximum slot value is not exceeded and is not already reached.
+        bool isRangeBound = $uMaxSupply >=
+            LibOrb.maxSupply(provenanceRef.maxSupply) &&
+            $uMaxSupply >= provenanceRef.totalSupply &&
+            $uMaxSupply <= type(uint32).max;
 
         /// @dev Confirm the max supply is not already reached.
         /// @notice When `maxSupply` is 0, it is unlimited.
         require(
-            provenanceRef.maxSupply == 0 ||
-                $provenance.maxSupply >= provenanceRef.totalSupply,
-            "Orb::load: can only increase max supply"
+            isInfinite || isRangeBound,
+            "Orb::load: invalid max supply configuration"
         );
 
-        /// @dev Confirm the closure of minting has not already passed.
+        /// @dev Determine if the minting of the Orb has no expiration.
+        isInfinite = $provenance.closure == 0 && provenanceRef.closure == 0;
+
+        /// @dev Determine if the minting of the Orb has a valid expiration.
+        bool isFuture = $provenance.closure >= block.timestamp &&
+            $provenance.closure >= provenanceRef.closure;
+
+        /// @dev Confirm the closure of minting has yet been set or is being increased.
+        /// @notice When `closure` is 0, there is no expiration.
         require(
-            provenanceRef.closure == 0 ||
-                $provenance.closure >= provenanceRef.closure,
-            "Orb::load: can only increase closure"
+            isInfinite || isFuture,
+            "Orb::load: invalid closure configuration"
         );
 
-        /// @dev Confirm the caller holds the majority of the Orb that is being
-        ///      loaded -- An Orb cannot be rugged from a natural Aura source.
-        require(
-            balanceOf(msg.sender, $id) > provenanceRef.totalSupply / 2,
-            "Orb::load: caller does not hold Orb"
-        );
+        /// @dev Determine the payment owed for the price change to the ecosystem.
+        /// @notice This is merely a fee to prevent spam.
+        uint256 priceDiff = $provenance.price > 0
+            ? LibOrb.price($provenance.price) -
+                LibOrb.price(provenanceRef.price)
+            : 0;
+
+        /// @dev Confirm the correct funding has been provided.
+        require(msg.value == priceDiff, "Orb::load: invalid funding");
 
         /// @dev Set the max supply of the Orb.
         provenanceRef.maxSupply = $provenance.maxSupply;
@@ -115,19 +143,20 @@ contract Orb is IOrb, ERC1155 {
         /// @dev Set the vault address of the Orb.
         provenanceRef.vault = $provenance.vault;
 
+        /// @dev Emit the load event of the Orb.
+        emit Load(
+            msg.sender,
+            $id,
+            $provenance.maxSupply,
+            $provenance.price,
+            $provenance.closure,
+            $provenance.vault
+        );
+
         /// @dev Pay the difference in price to the deployer of the Orbs.
-        if (provenanceRef.price < $provenance.price) {
-            /// @dev Transfer the funds to the deployer.
-            (bool success, ) = deployer.call{
-                value: ($provenance.price - provenanceRef.price)
-            }("");
-
-            /// @dev Confirm the transfer was successful.
-            require(success, "Orb::load: transfer failed");
-        }
-
-        /// @dev Emit the load event.
-        emit Load(msg.sender, $id);
+        /// @notice We use standard `transfer` here because we know the deployer
+        ///        to be safe and not malicious.
+        if (priceDiff > 0) deployer.transfer(priceDiff);
     }
 
     /**
@@ -272,15 +301,21 @@ contract Orb is IOrb, ERC1155 {
         ///      32 bits which are used for the positional data of the Orb gradient.
         uint224 id = uint224($id);
 
+        /// @dev Loading a slot for the domain.
+        uint256 domain;
+
         /// @dev Truncate the 256 bits to 224, trimming the map to exclude the last
         ///      32 bits which are used for the positional data of the Orb gradient.
         for (id; id > 0; id >>= LibColor.HEX_OFFSET) {
             /// @dev The color is the last 32 bits of the ID.
             $color = uint32(id & LibColor.HEX_MASK);
 
-            /// @dev Confirm the domain of the active stop is increasing.
+            /// @dev Get the domain of the active stop.
+            domain = $color.domain();
+
+            /// @dev Confirm 0 <= domain <= 100 and domain_N < domain_N+1.
             require(
-                $color.domain() > prevDomain,
+                domain > prevDomain && domain <= LibOrb.MAX_DOMAIN,
                 "Orb::isValid: invalid color domain"
             );
 
@@ -298,7 +333,14 @@ contract Orb is IOrb, ERC1155 {
         /// @dev Get the chromosone head of of the DNA declaration.
         $color = uint32(($id >> 224) & LibColor.HEX_MASK);
 
-        /// @dev Confirm the head of the DNA reflects the correct definition.
+        /// @dev Confirm 0 <= x & y <= 100.
+        require(
+            $color.coordinate(0) <= LibOrb.MAX_COORDINATE &&
+                $color.coordinate(1) <= LibOrb.MAX_COORDINATE,
+            "Orb::isValid: invalid gradient coordinates"
+        );
+
+        /// @dev Confirm colorCount == count of non-empty colors.
         require(
             $color.colorCount() == colors,
             "Orb::isValid: invalid color count"

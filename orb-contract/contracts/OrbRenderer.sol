@@ -100,8 +100,6 @@ contract OrbRenderer is IOrbRenderer {
         /// @dev Determine the length of the animation.
         string memory animationDuration = (5 - $config.speed()).toString();
 
-        // ethers.utils.toUtf8Bytes(HEAD_STR),
-
         /// @dev Initialize the SVG.
         $svg = string.concat(
             '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" preserveAspectRatio="xMidYMid meet"><style>.f{animation:',
@@ -196,7 +194,7 @@ contract OrbRenderer is IOrbRenderer {
     /**
      * See {IOrbRenderer-attributes}.
      */
-    function attributes(uint256 $id, uint32 $config) public pure returns (string memory $attributes) { 
+    function attributes(uint256 $id, uint32 $config) public pure virtual returns (string memory $attributes) { 
         /// @dev Append a coordinate string that represents the 'x' and 'y' coordinates of the Orb radial gradient.
         $attributes = string.concat(
             '{"trait_type": "Coordinates", "value": "(',
@@ -277,6 +275,7 @@ contract OrbRenderer is IOrbRenderer {
         /// @dev Extract the configuration from the Orb ID.
         uint32 config = uint32($id >> 224);
 
+        /// @dev Build the Orb metadata.
         metadata = string.concat(
             '{ "name": "Orb #',
             $id.toString(),
@@ -289,20 +288,7 @@ contract OrbRenderer is IOrbRenderer {
             '"}'
         );
 
-        /// @dev Build the Orb metadata.
-        // metadata = string.concat(
-        //     '{ "name": "Orb #',
-        //     $id.toString(),
-        //     '", "description": "This Orb captures the aura of the holder.", "image": "',
-        //     svg($id, config),
-        //     '", "attributes": [',
-        //     attributes($id, config),
-        //     '], external_url": "',
-        //     uriIPFS($id),
-        //     '" }'
-        // );
-
-        /// @dev Encode and return the JSON metadata in base64.
+       /// @dev Encode and return the JSON metadata in base64.
         metadata = string.concat(
             "data:application/json;base64,",
             abi.encodePacked(metadata).encode()

@@ -5,7 +5,7 @@ import { ethers } from 'hardhat';
 
 import { OnchainColorMap } from '../../orb/src/types';
 
-import { getId, getMap } from '../utils/Color';
+import { getId, getMap, getPackedMaxSupply, getPackedPrice } from '../utils/Color';
 
 const DEFAULT_MAP: OnchainColorMap = {
     x: 360,
@@ -21,7 +21,8 @@ const DEFAULT_MAP: OnchainColorMap = {
         { empty: false, domain: 50, r: 255, g: 255, b: 255 },
         { empty: false, domain: 60, r: 255, g: 255, b: 255 },
         { empty: false, domain: 70, r: 0, g: 0, b: 0 },
-    ]
+    ],
+    colorCount: 7,
 };
 
 DEFAULT_MAP.colorCount = DEFAULT_MAP.colors.filter(c => !c.empty).length;
@@ -64,6 +65,14 @@ const LAYERS: string[] = [
 describe('Orb', () => {
     const IPFS_HASH: string = 'Qm';
 
+    const deployMockDeployerFixture = async () => {
+        const Mock = await ethers.getContractFactory('MockDeployer');
+        const mock = await Mock.deploy();
+        await mock.deployed();
+
+        return { mock }
+    }
+
     const deployOrbColorLibraryFixture = async () => {
         const OrbColorLibrary = await ethers.getContractFactory('LibColor');
         const orbColorLibrary = await OrbColorLibrary.deploy();
@@ -102,7 +111,7 @@ describe('Orb', () => {
     const deployOrbFixture = async () => {
         const { orbLibrary, orbColorLibrary, orbRenderer } = await loadFixture(deployOrbRendererFixture);
 
-        const [deployer] = await ethers.getSigners();
+        const [deployer, otherAccount] = await ethers.getSigners();
 
         const Orb = await ethers.getContractFactory('Orb', {
             libraries: {
@@ -114,7 +123,7 @@ describe('Orb', () => {
         const orb = await Orb.deploy(orbRenderer.address);
         await orb.deployed();
 
-        return { deployer, orb, orbRenderer };
+        return { deployer, otherAccount, orb, orbRenderer };
     };
 
     describe('Deployment', () => {
@@ -201,6 +210,25 @@ describe('Orb', () => {
             );
         });
 
+        it("Should not be able to mint Orb with coordinates higher than polar coordinates", async () => {
+            const { deployer, orb } = await loadFixture(deployOrbFixture);
+
+            const _map = DEFAULT_MAP;
+
+            _map.x = 361;
+            _map.y = 361;
+
+            const map = JSON.parse(JSON.stringify(_map));
+
+            const id = getId(map);
+
+            const amount = 1;
+
+            await expect(orb.mint(deployer.address, id, amount, '0x')).to.be.revertedWith(
+                'Orb::isValid: invalid gradient coordinates',
+            );
+        });
+
         it('Should be able to mint a valid Orb', async () => {
             const { deployer, orb } = await loadFixture(deployOrbFixture);
 
@@ -221,13 +249,130 @@ describe('Orb', () => {
             expect(metadata['attributes']).to.deep.equal(DEFAULT_ATTRIBUTES);
 
             expect(metadata['external_url']).to.equal(`ipfs://${IPFS_HASH}/?id=${id}`)
+
+            await expect(orb.uri(999999)).to.be.revertedWith('Orb::isValid: invalid color domain');
         });
 
-        // TODO: Test load failure due to vault mismatch
-        // TODO: Test maxSupply failure
-        // TODO: Test closure failure
-        // TODO: Test load failure due to lacking balance
-        // TODO: ETH transfer failure
+        it("Should load after minting", async () => {
+            const { deployer, otherAccount, orb } = await loadFixture(deployOrbFixture);
+
+            const id = DEFAULT_ID;
+
+            const amount = 1;
+
+            await expect(orb.mint(deployer.address, id, amount, '0x')).to.emit(orb, 'TransferSingle');
+
+            const provenance = {
+                maxSupply: getPackedMaxSupply({ supply: 2n, power: 2n }),
+                price: 0,
+                totalSupply: 0,
+                closure: 0,
+                vault: deployer.address,
+            }
+
+            await expect(orb.connect(otherAccount).load(id, provenance)).to.be.revertedWith("Orb::load: invalid vault configuration")
+
+            await expect(orb.load(id, provenance)).to.emit(orb, 'Load');
+
+            await expect(orb.load(999999, provenance)).to.be.revertedWith('Orb::isValid: invalid color domain');
+
+            await expect(orb.connect(otherAccount).load(id, provenance)).to.be.revertedWith('Orb::load: invalid vault configuration');
+
+            await expect(orb.load(id, provenance)).to.emit(orb, 'Load');
+        });
+
+        it("Should load and hit deep-branch checks", async () => {
+            const { deployer, orb } = await loadFixture(deployOrbFixture);
+
+            const id = DEFAULT_ID;
+
+            const amount = 5;
+
+            await expect(orb.mint(deployer.address, id, amount, '0x')).to.emit(orb, 'TransferSingle');
+
+            expect(await orb.balanceOf(deployer.address, id)).to.equal(amount);
+
+            let provenance = {
+                maxSupply: 2,
+                price: 0,
+                totalSupply: 0,
+                closure: 0,
+                vault: deployer.address,
+            }
+
+            let closure = 1;
+
+            await expect(orb.load(id, provenance)).to.be.revertedWith("Orb::load: invalid max supply configuration")
+
+            provenance = {
+                maxSupply: 0,
+                price: 0,
+                totalSupply: 0,
+                closure,
+                vault: deployer.address,
+            }
+
+            await expect(orb.load(id, provenance)).to.be.revertedWith("Orb::load: invalid closure configuration")
+
+            provenance.closure = Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60;
+
+            expect(await orb.load(id, provenance))
+
+            provenance.closure = (Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60) + 10
+
+            expect(await orb.load(id, provenance))
+
+            provenance.closure = 1;
+
+            await expect(orb.load(id, provenance)).to.be.revertedWith("Orb::load: invalid closure configuration")
+        });
+
+        it("Should load and hit bitpacked checks", async () => {
+            const { deployer, orb } = await loadFixture(deployOrbFixture);
+
+            const id = DEFAULT_ID;
+
+            const amount = 5;
+
+            await expect(orb.mint(deployer.address, id, amount, '0x')).to.emit(orb, 'TransferSingle');
+
+            expect(await orb.balanceOf(deployer.address, id)).to.equal(amount);
+
+            let provenance = {
+                maxSupply: getPackedMaxSupply({ supply: 2n, power: 3n }),
+                price: getPackedPrice({ base: 1n, decimals: 18n }),
+                totalSupply: 0,
+                closure: 0,
+                vault: deployer.address,
+            }
+
+            await expect(orb.load(id, provenance, { value: 1 })).to.be.revertedWith("Orb::load: invalid funding")
+
+            await expect(orb.load(id, provenance, { value: ethers.utils.parseEther('1') })).to.emit(orb, 'Load');
+        });
+
+        it("Should load and hit price checks but fail due to invalid vault", async () => {
+            const { mock } = await loadFixture(deployMockDeployerFixture);
+            const { deployer, orb } = await loadFixture(deployOrbFixture);
+
+            const id = DEFAULT_ID;
+
+            const amount = 5;
+
+            await expect(orb.mint(deployer.address, id, amount, '0x')).to.emit(orb, 'TransferSingle');
+
+            expect(await orb.balanceOf(deployer.address, id)).to.equal(amount);
+
+            let provenance = {
+                maxSupply: getPackedMaxSupply({ supply: 2n, power: 3n }),
+                price: getPackedPrice({ base: 1n, decimals: 18n }),
+                totalSupply: 0,
+                closure: 0,
+                vault: mock.address,
+            }
+
+            await expect(orb.load(id, provenance, { value: 1 })).to.be.revertedWith("Orb::load: invalid funding")
+        })
     });
 
     describe('Forking', () => { });

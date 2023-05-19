@@ -1,4 +1,4 @@
-import { OnchainColor, OnchainColorMap } from '../../orb/src/types';
+import { OnchainColor, OnchainColorMap, OnchainMaxSupply, OnchainPrice } from '../../orb/src/types';
 
 // Javascript stores everything inside uint64s and this ruins
 // bitpacking for a uint256, so we are going to have to use BigInts
@@ -64,3 +64,25 @@ export const getMap = (id: bigint): OnchainColorMap => {
         colors,
     };
 };
+
+export const getPackedMaxSupply = ({ supply, power }: OnchainMaxSupply): bigint => {
+    return (supply << 6n) | power;
+}
+
+export const getMaxSupply = (packed: bigint): OnchainMaxSupply => {
+    return {
+        supply: packed >> 6n,
+        power: packed & 0x3fn,
+    };
+}
+
+export const getPackedPrice = ({ base, decimals }: OnchainPrice): bigint => {
+    return (base << 5n) | decimals;
+}
+
+export const getPrice = (packed: bigint): OnchainPrice => {
+    return {
+        base: packed >> 5n,
+        decimals: packed & 0x1fn,
+    };
+}
