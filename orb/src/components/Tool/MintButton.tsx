@@ -18,8 +18,6 @@ const MintButton = ({ id, onMint }: MintButtonProps) => {
 
     const formattedAddress = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '';
 
-    // add rainbowkit
-
     if (isConnected)
         return (
             <div>
@@ -35,6 +33,8 @@ const MintButton = ({ id, onMint }: MintButtonProps) => {
             </div>
         );
 
+    // add rainbowkit
+    
     return (
         <button className="mint" onClick={() => connect()}>
             Connect Wallet

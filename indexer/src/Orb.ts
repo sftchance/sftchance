@@ -6,6 +6,18 @@ ponder.on("Orb:Load", async ({ event, context }) => {
     const { Orb } = context.entities;
 
     // TODO: Create or update the Orb entity with the params.
+  
+    const id = event.params.$id.toString();
+  
+    Orb.upsert({
+      id,
+      create: {
+        id,
+      },
+      update: {
+        id,
+      },
+    })
 })
 
 ponder.on("Orb:Fork", async ({ event, context }) => {
@@ -29,8 +41,6 @@ ponder.on("Orb:TransferSingle", async ({ event, context }) => {
     // TODO: Update the balance of the sender and receiver.
 
   const { Orb } = context.entities;
-  
-  Orb.upsert()
 })
 
 ponder.on("Orb:TransferBatch", async ({ event, context }) => {

@@ -15,13 +15,15 @@
         "@fortawesome/free-solid-svg-icons": "^6.4.0",
         "@fortawesome/react-fontawesome": "^0.2.0",
         "@vercel/analytics": "^1.0.0",
+        "@wagmi/core": "^1.0.5",
         "babel-plugin-macros": "^3.1.0",
         "chroma-js": "^2.4.2",
         "ethers": "^5.7.2",
         "html-to-image": "^1.11.11",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
-        "wagmi": "^0.12.12"
+        "viem": "^0.3.31",
+        "wagmi": "^1.0.5"
     },
     "devDependencies": {
         "@types/chroma-js": "^2.4.0",

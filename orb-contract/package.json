@@ -16,7 +16,7 @@
     "scripts": {
         "clean": "npx hardhat clean && shx rm -rf artifacts/ cache/ coverage/ coverage.json typechain-types/ types/",
         "clean:modules": "shx rm -rf node_modules/ && npm i",
-        "build": "npx hardhat compile && npx wagmi generate",
+        "build": "npx hardhat compile",
         "ci": "npx hardhat test"
     }
 }
