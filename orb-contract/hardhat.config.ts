@@ -3,9 +3,6 @@ import { HardhatUserConfig } from 'hardhat/config';
 import '@nomicfoundation/hardhat-toolbox';
 import "hardhat-tracer"
 
-// Accounts task
-// Deployment task
-
 const config: HardhatUserConfig = {
     solidity: {
         version: "0.8.18",
@@ -27,6 +24,12 @@ const config: HardhatUserConfig = {
         enabled: true,
         currency: 'USD',
         gasPrice: 50,
+    },
+    typechain: {
+        outDir: 'types',
+        target: 'ethers-v5',
+        alwaysGenerateOverloads: true,
+        dontOverrideCompile: false
     },
 };
 

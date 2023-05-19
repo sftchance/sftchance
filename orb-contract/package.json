@@ -1,13 +1,19 @@
 {
-  "name": "hardhat-project",
-  "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^2.0.0",
-    "@openzeppelin/contracts": "^4.8.3",
-    "@wagmi/cli": "^0.1.15",
-    "hardhat": "^2.14.0",
-    "hardhat-gas-reporter": "^1.0.9",
-    "hardhat-tracer": "^2.3.0",
-    "solady": "^0.0.90",
-    "wagmi": "^0.12.12"
-  }
+    "name": "@sftchance/orb",
+    "devDependencies": {
+        "@nomicfoundation/hardhat-toolbox": "^2.0.0",
+        "@openzeppelin/contracts": "^4.8.3",
+        "@wagmi/cli": "^1.0.1",
+        "hardhat": "^2.14.0",
+        "hardhat-gas-reporter": "^1.0.9",
+        "hardhat-tracer": "^2.3.0",
+        "shx": "^0.3.4",
+        "solady": "^0.0.90",
+        "wagmi": "^1.0.5"
+    },
+    "scripts": {
+        "clean": "npx hardhat clean && shx rm -rf artifacts/ cache/ coverage/ coverage.json typechain-types/ types/",
+        "clean:modules": "shx rm -rf node_modules/ && npm i",
+        "build": "npx hardhat compile && npx wagmi generate"
+    }
 }
