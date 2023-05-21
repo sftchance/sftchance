@@ -9,7 +9,7 @@ ponder.on("Orb:Load", async ({ event, context }) => {
   
     const id = event.params.$id.toString();
   
-    Orb.upsert({
+    await Orb.upsert({
       id,
       create: {
         id,

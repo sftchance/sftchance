@@ -6,6 +6,9 @@ pragma solidity ^0.8.18;
 import {LibString} from "solady/src/utils/LibString.sol";
 
 library LibOrb {
+    /// @dev The timestamp used to skew the closure of minting.
+    uint256 public constant SKEW = 1_672_534_861;
+
     /// @dev The maximum allowed value of a gradient domain.
     uint256 constant MAX_POLAR = 100;
 
@@ -40,6 +43,16 @@ library LibOrb {
     uint32 constant BG_SCALAR_MASK = 0xFF;
 
     /**
+     * @notice Adjust the timestamp by the protocol-based Genesis Epoch.
+     * @param $closure The timestamp to skew.
+     * @return $skew The adjusted timestamp.
+     */
+    function skew(uint32 $closure) internal pure returns (uint256) {
+        /// @dev Shift the time over.
+        return $closure + SKEW;
+    }
+
+    /**
      * @notice Get the [0-359] value positional data of a color.
      * @param $color The bitpacked color to extract the hue channel from.
      * @param $index The index of the position in the color.
@@ -48,7 +61,7 @@ library LibOrb {
     function coordinate(
         uint32 $color,
         uint8 $index
-    ) public pure returns (uint256 $coordinate) {
+    ) internal pure returns (uint256 $coordinate) {
         /// @dev Extract a uint9 value from the bitpacked color at a specific
         ///      color index and coordinate position withtin that segment.
         $coordinate = ($color >> ($index * COORD_OFFSET)) & COORD_MASK;
@@ -59,7 +72,7 @@ library LibOrb {
      * @param $color The bitpacked color to extract the speed channel from.
      * @return $speed The [0-3] value of the speed channel of the color.
      */
-    function speed(uint32 $color) public pure returns (uint256 $speed) {
+    function speed(uint32 $color) internal pure returns (uint256 $speed) {
         $speed = ($color >> SPEED_OFFSET) & SPEED_MASK;
     }
 
@@ -70,7 +83,7 @@ library LibOrb {
      */
     function colorCount(
         uint32 $color
-    ) public pure returns (uint256 $colorCount) {
+    ) internal pure returns (uint256 $colorCount) {
         $colorCount = ($color >> COLOR_COUNT_OFFSET) & COLOR_COUNT_MASK;
     }
 
@@ -83,7 +96,7 @@ library LibOrb {
      */
     function bgTransparent(
         uint32 $color
-    ) public pure returns (bool $bgTransparent) {
+    ) internal pure returns (bool $bgTransparent) {
         $bgTransparent =
             (($color >> BG_TRANSPARENT_OFFSET) & BG_TRANSPARENT_MASK) == 1;
     }
@@ -99,7 +112,7 @@ library LibOrb {
      * @param $color The bitpacked color to extract the bg scalar channel from.
      * @return $scalar The [0-255] value of the bg scalar channel of the color.
      */
-    function bgScalar(uint32 $color) public pure returns (uint32 $scalar) {
+    function bgScalar(uint32 $color) internal pure returns (uint32 $scalar) {
         /// @dev Extract a uint8 value from the bitpacked color at the bg scalar position.
         $scalar = ($color >> BG_SCALAR_OFFSET) & BG_SCALAR_MASK;
     }
@@ -108,7 +121,7 @@ library LibOrb {
      * @notice Recover the configured max supply from the bitpacked price.
      *
      */
-    function maxSupply(uint8 $supply) public pure returns (uint32) {
+    function maxSupply(uint8 $supply) internal pure returns (uint32) {
         /// @dev Get the 6 most right bits of the price.
         uint8 power = $supply & 0x3F;
 
@@ -125,7 +138,7 @@ library LibOrb {
         return uint32(supply ** power - 1);
     }
 
-    function price(uint24 $price) public pure returns (uint256) {
+    function price(uint24 $price) internal pure returns (uint256) {
         /// @dev Get the 5 most right bits of the price.
         uint24 decimals = $price & 0x1F;
 

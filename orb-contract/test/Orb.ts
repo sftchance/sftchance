@@ -1,7 +1,9 @@
-import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
+import { loadFixture, time } from '@nomicfoundation/hardhat-network-helpers';
 
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
+
+import { OnchainColorMap } from '../../orb/src/types';
 
 import { DEFAULT_ATTRIBUTES, DEFAULT_ID, DEFAULT_LAYERS, DEFAULT_MAP } from "../constants";
 
@@ -30,12 +32,7 @@ describe('Orb', () => {
         const { orbLibrary } = await loadFixture(deployOrbLibraryFixture);
         const { orbColorLibrary } = await loadFixture(deployOrbColorLibraryFixture);
 
-        const OrbRenderer = await ethers.getContractFactory('OrbRenderer', {
-            libraries: {
-                LibColor: orbColorLibrary.address,
-                LibOrb: orbLibrary.address,
-            },
-        });
+        const OrbRenderer = await ethers.getContractFactory('OrbRenderer');
 
         const ipfsHashBytes = ethers.utils.toUtf8Bytes(DEFAULT_IPFS_HASH_BYTES);
 
@@ -50,12 +47,7 @@ describe('Orb', () => {
 
         const [deployer, otherAccount] = await ethers.getSigners();
 
-        const Orb = await ethers.getContractFactory('Orb', {
-            libraries: {
-                LibColor: orbColorLibrary.address,
-                LibOrb: orbLibrary.address,
-            },
-        });
+        const Orb = await ethers.getContractFactory('Orb');
 
         const orb = await Orb.deploy(orbRenderer.address);
         await orb.deployed();
@@ -310,6 +302,37 @@ describe('Orb', () => {
             }
 
             await expect(orb.load(id, provenance, { value: 1 })).to.be.revertedWith("Orb::load: invalid funding")
+        })
+
+        it("Should load and hit closure", async () => {
+            const { deployer, otherAccount, orb } = await loadFixture(deployOrbFixture);
+
+            const id = DEFAULT_ID;
+
+            const amount = 5;
+
+            await expect(orb.mint(deployer.address, id, amount, '0x')).to.emit(orb, 'TransferSingle');
+
+            expect(await orb.balanceOf(deployer.address, id)).to.equal(amount);
+
+            const now = await time.latest();
+            const skewed = now - 1_672_534_861;
+
+            let provenance = {
+                maxSupply: getPackedMaxSupply({ supply: 2n, power: 4n }),
+                price: 0,
+                totalSupply: 0,
+                closure: skewed + 3600,
+                vault: otherAccount.address,
+            }
+
+            await orb.load(id, provenance)
+
+            expect(await orb.mint(deployer.address, id, amount, '0x'))
+
+            await time.increaseTo(now + 3600)
+
+            await expect(orb.mint(deployer.address, id, amount, '0x')).to.be.revertedWith("Orb::mint: minting closed")
         })
     });
 

@@ -1,1 +1,2 @@
 solady/=node_modules/solady/
+hardhat/=node_modules/hardhat/

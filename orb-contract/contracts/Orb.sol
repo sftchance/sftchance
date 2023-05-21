@@ -6,8 +6,8 @@ pragma solidity ^0.8.18;
 import {IOrb} from "./interfaces/IOrb.sol";
 import {ERC1155} from "solady/src/tokens/ERC1155.sol";
 
-/// @dev Interface dependencies.
-import {OrbRenderer} from "./OrbRenderer.sol";
+/// @dev Helper interfaces.
+import {IOrbRenderer} from "./interfaces/IOrbRenderer.sol";
 
 /// @dev Helper libraries.
 import {LibColor} from "./utils/LibColor.sol";
@@ -36,7 +36,7 @@ contract Orb is IOrb, ERC1155 {
     address payable public immutable deployer;
 
     /// @dev The address of the renderer contract.
-    OrbRenderer public immutable renderer;
+    IOrbRenderer public immutable renderer;
 
     /// @dev Keep track of the color mappings minted.
     mapping(uint256 => Provenance) public provenance;
@@ -44,7 +44,7 @@ contract Orb is IOrb, ERC1155 {
     /**
      * @notice Constructs the Orb ERC-1155 contract with the renderer.
      */
-    constructor(OrbRenderer $renderer) ERC1155() {
+    constructor(IOrbRenderer $renderer) ERC1155() {
         /// @dev Store the deployer address.
         deployer = payable(msg.sender);
 
@@ -112,7 +112,8 @@ contract Orb is IOrb, ERC1155 {
         isInfinite = $provenance.closure == 0 && provenanceRef.closure == 0;
 
         /// @dev Determine if the minting of the Orb has a valid expiration.
-        bool isFuture = $provenance.closure >= block.timestamp &&
+        // TODO: Handle the SKEWED_TIMESTAMP usage
+        bool isFuture = $provenance.closure.skew() >= block.timestamp &&
             $provenance.closure >= provenanceRef.closure;
 
         /// @dev Confirm the closure of minting has yet been set or is being increased.
@@ -226,6 +227,15 @@ contract Orb is IOrb, ERC1155 {
                 provenanceRef.totalSupply + $amount <=
                 LibOrb.maxSupply(provenanceRef.maxSupply),
             "Orb::mint: totalSupply exceeded"
+        );
+
+        /// @dev Confirm the mint closure timestamp is greater than now.
+        /// @notice We utilize a skewed timestamp to prevent the closure from being
+        ///         reached too early while still allowing for a reasonable closure.
+        require(
+            provenanceRef.closure == 0 ||
+                provenanceRef.closure.skew() >= block.timestamp,
+            "Orb::mint: minting closed"
         );
 
         /// @dev Increment the total supply of the Orb.

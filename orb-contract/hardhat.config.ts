@@ -15,7 +15,7 @@ const config: HardhatUserConfig = {
         settings: {
             optimizer: {
                 enabled: true,
-                runs: 2000,
+                runs: 10000,
                 details: {
                     yul: true,
                     yulDetails: {
@@ -41,10 +41,10 @@ const config: HardhatUserConfig = {
         apiKey: process.env.ETHERSCAN_API_KEY,
     },
     networks: {
-        sepolia: {
+        goerli: {
             url: process.env.TESTNET_RPC_URL,
             accounts: PRIVATE_KEY_ACCOUNTS,
-        },
+        }
     }
 };
 

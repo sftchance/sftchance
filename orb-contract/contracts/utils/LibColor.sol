@@ -45,7 +45,7 @@ library LibColor {
         uint32,
         uint256 $map,
         uint8 $index
-    ) public pure returns (uint32 $color) {
+    ) internal pure returns (uint32 $color) {
         /// @dev Extract the color from the bitpacked sum.
         $color = uint32(($map >> ($index * HEX_OFFSET)) & HEX_MASK);
     }
@@ -55,7 +55,7 @@ library LibColor {
      * @param $color The bitpacked color to extract the blue channel from.
      * @return $r The [0-255] value of the blue channel of the color.
      */
-    function r(uint32 $color) public pure returns (uint8 $r) {
+    function r(uint32 $color) internal pure returns (uint8 $r) {
         /// @dev Extract the rgb values from the bitpacked color.
         $r = uint8(($color >> (SHORT_OFFSET * 2)) & SHORT_MASK);
     }
@@ -65,7 +65,7 @@ library LibColor {
      * @param $color The bitpacked color to extract the green channel from.
      * @return $g The [0-255] value of the green channel of the color.
      */
-    function g(uint32 $color) public pure returns (uint8 $g) {
+    function g(uint32 $color) internal pure returns (uint8 $g) {
         /// @dev Extract the rgb values from the bitpacked color.
         $g = uint8(($color >> SHORT_OFFSET) & SHORT_MASK);
     }
@@ -75,7 +75,7 @@ library LibColor {
      * @param $color The bitpacked color to extract the red channel from.
      * @return $b The [0-255] value of the red channel of the color.
      */
-    function b(uint32 $color) public pure returns (uint8 $b) {
+    function b(uint32 $color) internal pure returns (uint8 $b) {
         /// @dev Extract the rgb values from the bitpacked color.
         $b = uint8($color & SHORT_MASK);
     }
@@ -90,7 +90,7 @@ library LibColor {
      */
     function rgb(
         uint32 $color
-    ) public pure returns (uint8 $r, uint8 $g, uint8 $b) {
+    ) internal pure returns (uint8 $r, uint8 $g, uint8 $b) {
         /// @dev Extract the rgb values from the bitpacked color.
         $r = r($color);
         $g = g($color);
@@ -102,9 +102,12 @@ library LibColor {
      * @param $scalar The [0-255] value to convert to a bitpacked color.
      * @return $color The bitpacked color.
      */
-    function scalar(uint32 $scalar) public pure returns (uint32 $color) {
+    function scalar(uint32 $scalar) internal pure returns (uint32 $color) {
         /// @dev Bitpack the scalar value into a color.
-        $color = $scalar | ($scalar << SHORT_OFFSET) | ($scalar << (SHORT_OFFSET * 2));
+        $color =
+            $scalar |
+            ($scalar << SHORT_OFFSET) |
+            ($scalar << (SHORT_OFFSET * 2));
     }
 
     /**
@@ -112,7 +115,7 @@ library LibColor {
      * @param $color The bitpacked color to extract the red channel from.
      * @return $domain The [0-100] value of the color in the gradient.
      */
-    function domain(uint32 $color) public pure returns (uint256 $domain) {
+    function domain(uint32 $color) internal pure returns (uint256 $domain) {
         /// @dev Get the last 8 bits from `$color` and convert it to a `uint8`
         ///      value representing the domain of the color.
         $domain = ($color >> DOMAIN_OFFSET) & DOMAIN_MASK;
@@ -123,7 +126,7 @@ library LibColor {
      * @param $color The bitpacked color to check if it is empty.
      * @return $empty Whether or not the color is empty.
      */
-    function empty(uint32 $color) public pure returns (bool $empty) {
+    function empty(uint32 $color) internal pure returns (bool $empty) {
         /// @dev Get the last bit and determine if it has been toggled to signal
         ///      that the color is empty.
         $empty = ($color >> (HEX_OFFSET - 1)) == 0;
@@ -136,7 +139,7 @@ library LibColor {
      */
     function hexadecimal(
         uint32 $color
-    ) public pure returns (string memory $hex) {
+    ) internal pure returns (string memory $hex) {
         /// @dev Extract the rgb values from the bitpacked color.
         (uint8 $r, uint8 $g, uint8 $b) = rgb($color);
 

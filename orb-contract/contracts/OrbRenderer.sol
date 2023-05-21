@@ -13,7 +13,7 @@ import {LibColor} from "./utils/LibColor.sol";
 import {LibOrb} from "./utils/LibOrb.sol";
 
 /**
- * @title OrbRender
+ * @title OrbRenderer
  * @author sftchance.eth
  * @notice This contract handles the rendering of Orbs onchain creating a native SVG representation.
  *         Built on top of a DNA-like system, the rendering is deterministic and can be used to

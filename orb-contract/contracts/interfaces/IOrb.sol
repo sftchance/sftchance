@@ -9,7 +9,7 @@ interface IOrb {
         /// @dev The packed value of the Orb's supply.
         /// @notice  First 6 bits represents the power of the next 2.
         /// @notice To set it to `uint32.max` supply should be set to the value of `2^32`
-        /// @notice Thanks to the wizardry of binary, 2^32 == 4,294,967,296 == uint32 max.
+        /// @notice Thanks to the wizardry of developers before you, 2^32 == 4,294,967,296 == uint32 max.
         /// @dev | supply (2 bits) | power (6 bits) |
         uint8 maxSupply;
         /// @dev The price of the Orb in arithmetic implementation.
