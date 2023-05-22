@@ -16,21 +16,20 @@ import {LibOrb} from "./utils/LibOrb.sol";
 /**
  * @title Orb: An Orb is the visualization of its holder's aura.
  * @author sftchance.eth
- * @notice This contract enables an open market of familial-based Orbs. Through optional and social
- *         coordination of forking it is possible to create a new Orb from an existing one
- *         to denote a generational inspiration even when the genes are not directly passed down.
- *
- * @notice CHANCE Orbs are a study in how identity is represented onchain and the Digital
- *         Diaspora that emerges from the introduction of digital races and ethnicities. With a homage
- *         to those before, Orbs are a reflection of the past, present, and future for all those who
- *         have been, are, and will be. All that mint, scroll by, and fork are a part of the CHANCE
- *         family and geography presenting a new way to experience related digital identities.
- *         To protect the outcome, every action is acknowledged and accounted for in detail.
+ * @notice Orbs are a study in how identity is represented onchain and the Digital Diaspora that emerges
+ *         from the introduction of digital races and ethnicities. With a homage to those before, Orbs are
+ *         a reflection of the past, present, and future for all those who have been, are, and will be. All
+ *         that mint, scroll by, and fork are a part of the CHANCE family and geography presenting a new way
+ *         to experience related digital identities. To protect the outcome, every action is acknowledged
+ *         and accounted for in detail.
  */
 contract Orb is IOrb, ERC1155 {
     /// @dev Load in the fancy libraries.
     using LibColor for uint32;
     using LibOrb for uint32;
+
+    /// @dev The address of the forever lost.
+    address constant DEAD_ADDRESS = 0x000000000000000000000000000000000000dEaD;
 
     /// @dev The address of the deployer of the contract.
     address payable public immutable deployer;
@@ -197,9 +196,7 @@ contract Orb is IOrb, ERC1155 {
         );
 
         /// @dev Kill the vault.
-        provenanceRef.vault = payable(
-            address(0x000000000000000000000000000000000000dEaD)
-        );
+        provenanceRef.vault = payable(address(DEAD_ADDRESS));
 
         /// @dev Reset the price to 0.
         delete provenanceRef.price;

@@ -1,6 +1,7 @@
 {
-    "name": "@sftchance/orb",
+    "name": "@sftchance/orb-contract",
     "devDependencies": {
+        "@nomicfoundation/hardhat-foundry": "^1.0.1",
         "@nomicfoundation/hardhat-toolbox": "^2.0.0",
         "@openzeppelin/contracts": "^4.8.3",
         "@types/cli-progress": "^3.11.0",
@@ -13,7 +14,7 @@
         "solady": "^0.0.90"
     },
     "scripts": {
-        "clean": "npx hardhat clean && shx rm -rf artifacts/ cache/ coverage/ coverage.json typechain-types/ types/",
+        "clean": "npx hardhat clean && shx rm -rf lib/ artifacts/ cache/ coverage/ coverage.json typechain-types/ types/",
         "clean:modules": "shx rm -rf node_modules/ && npm i",
         "build": "npx hardhat compile",
         "ci": "npx hardhat test"

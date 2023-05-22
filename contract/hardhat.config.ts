@@ -3,6 +3,7 @@ import { HardhatUserConfig } from 'hardhat/config';
 import dotenv from 'dotenv';
 
 import '@nomicfoundation/hardhat-toolbox';
+import "@nomicfoundation/hardhat-foundry";
 import "hardhat-tracer"
 
 dotenv.config();

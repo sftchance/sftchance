@@ -45,17 +45,25 @@ async function main() {
             await new Promise((r) => setTimeout(r, 1000));
         }
 
-        await run('verify:verify', {
-            address: orb.address,
-            constructorArguments: [orbRenderer.address],
-        });
+        try {
+            await run('verify:verify', {
+                address: orb.address,
+                constructorArguments: [orbRenderer.address],
+            });
+        } catch (error) {
+            console.error(error);
+        }
 
         blockExplorerVerification.increment();
 
-        await run('verify:verify', {
-            address: orbRenderer.address,
-            constructorArguments: [DEFAULT_IPFS_HASH_BYTES, DEFAULT_LAYERS],
-        });
+        try {
+            await run('verify:verify', {
+                address: orbRenderer.address,
+                constructorArguments: [DEFAULT_IPFS_HASH_BYTES, DEFAULT_LAYERS],
+            });
+        } catch (error) {
+            console.error(error);
+        }
 
         blockExplorerVerification.increment();
     }
