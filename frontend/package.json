@@ -1,0 +1,36 @@
+{
+    "name": "frontend",
+    "version": "0.0.1",
+    "private": true,
+    "scripts": {
+        "dev": "npm run wagmi && vite",
+        "build": "npm run wagmi && tsc && vite build",
+        "preview": "vite preview",
+        "wagmi": "wagmi generate"
+    },
+    "dependencies": {
+        "@fortawesome/fontawesome-svg-core": "^6.4.0",
+        "@fortawesome/free-regular-svg-icons": "^6.4.0",
+        "@fortawesome/free-solid-svg-icons": "^6.4.0",
+        "@fortawesome/react-fontawesome": "^0.2.0",
+        "@vercel/analytics": "^1.0.1",
+        "@wagmi/cli": "^1.0.0",
+        "buffer": "^6.0.3",
+        "chroma-js": "^2.4.2",
+        "html-to-image": "^1.11.11",
+        "process": "^0.11.10",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "util": "^0.12.4",
+        "viem": "~0.3.18",
+        "wagmi": "^1.0.0"
+    },
+    "devDependencies": {
+        "@types/chroma-js": "^2.4.0",
+        "@types/react": "^18.0.9",
+        "@types/react-dom": "^18.0.3",
+        "@vitejs/plugin-react": "^4.0.0",
+        "typescript": "^5.0.4",
+        "vite": "^4.3.5"
+    }
+}
