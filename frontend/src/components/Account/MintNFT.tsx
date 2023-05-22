@@ -5,7 +5,7 @@ import { zeroAddress } from 'viem';
 import {
     usePrepareOrbMint,
     useOrbMint,
-} from '../generated'
+} from '../../generated'
 
 export function MintNFT() {
     const [tokenId, setTokenId] = useState('')
